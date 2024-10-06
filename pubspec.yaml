@@ -15,8 +15,8 @@ dependencies:
   uuid: ^4.5.1
   provider: ^6.1.2
   collection: ^1.18.0
-#  bonfire: ^3.10.2
-  flame_behaviors: 1.0.0
+  bonfire: ^3.10.2
+#  flame_behaviors: 1.0.0
 
 dev_dependencies:
   flutter_test:
@@ -36,6 +36,9 @@ flutter:
   assets:
     - assets/map/
     - assets/images/spritesheet.png
+    - assets/images/tiled/tiles.json
+    - assets/images/tiled/tiles.png
+    - assets/images/tiled/village_10.json
 #    - images/a_dot_burr.jpeg
   
 

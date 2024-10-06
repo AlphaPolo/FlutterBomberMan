@@ -10,6 +10,7 @@ class BomberManConstant {
   static const Size gameContentSize = Size(width, height);
   static const Size cellSize = Size(64, 64);
 
+  static final Vector2 zero = Vector2.zero();
   static final Vector2 gameSize = gameContentSize.toVector2();
 
   static final Vector2 up = Vector2(0, -1);
