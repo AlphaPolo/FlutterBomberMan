@@ -1,0 +1,66 @@
+name: bomber_man
+description: "bomber_man"
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.4.3 <4.0.0'
+dependencies:
+  flutter:
+    sdk: flutter
+
+  cupertino_icons: ^1.0.6
+  flutter_animate: ^4.5.0
+  nakama: ^1.1.0
+  uuid: ^4.5.1
+  provider: ^6.1.2
+  collection: ^1.18.0
+#  bonfire: ^3.10.2
+  flame_behaviors: 1.0.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.0
+
+
+
+
+
+flutter:
+
+  
+  uses-material-design: true
+
+  
+  assets:
+    - assets/map/
+    - assets/images/spritesheet.png
+#    - images/a_dot_burr.jpeg
+  
+
+  
+  
+
+  
+  
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
