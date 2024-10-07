@@ -32,4 +32,46 @@ class ObjectSpriteSheet {
     srcSize: Vector2.all(16),
     srcPosition: Vector2(64, 48),
   );
+
+  static Future<Sprite> get abilityCapacity => Sprite.load(
+    'spritesheet.png',
+    srcSize: Vector2.all(16),
+    srcPosition: Vector2(0, 131),
+  );
+
+  static Future<Sprite> get abilitySpeed => Sprite.load(
+    'spritesheet.png',
+    srcSize: Vector2.all(16),
+    srcPosition: Vector2(17, 131),
+  );
+
+  static Future<Sprite> get abilityKick => Sprite.load(
+    'spritesheet.png',
+    srcSize: Vector2.all(16),
+    srcPosition: Vector2(34, 131),
+  );
+
+  static Future<Sprite> get abilityThrow => Sprite.load(
+    'spritesheet.png',
+    srcSize: Vector2.all(16),
+    srcPosition: Vector2(51, 131),
+  );
+
+  static Future<Sprite> get abilityPower => Sprite.load(
+    'spritesheet.png',
+    srcSize: Vector2.all(16),
+    srcPosition: Vector2(68, 131),
+  );
+
+  static Future<Sprite> get abilitySkull => Sprite.load(
+    'spritesheet.png',
+    srcSize: Vector2.all(16),
+    srcPosition: Vector2(85, 131),
+  );
+
+  static Future<Sprite> get abilityGoldenPower => Sprite.load(
+    'spritesheet.png',
+    srcSize: Vector2.all(16),
+    srcPosition: Vector2(102, 131),
+  );
 }

@@ -110,15 +110,21 @@ import 'package:flutter/material.dart';
 import '../../../providers/settings_provider.dart';
 
 class PlayerComponent extends SimplePlayer with BlockMovementCollision  {
-  static const double defaultSpeed = 300;
+  static const double maxSpeed = 600;
+  static const double defaultSpeed = 250;
   late final Vector2 halfSize;
 
   final BomberManKeyConfig keyConfig;
 
-  int force = 2;
-  int bombCapacity = 2;
+  // ability
+  int force = 1;
+  int bombCapacity = 1;
+  bool actionKick = false;
+  bool actionThrow = false;
 
   final Color color;
+
+
 
   PlayerComponent({
     required super.position,

@@ -12,4 +12,18 @@ class BomberUtils {
       worldPosition.y ~/ BomberManConstant.cellSize.height,
     );
   }
+
+  static Vector2 getPosition(Point<int> coordinate) {
+    return Vector2(
+      coordinate.x * BomberManConstant.cellSize.width,
+      coordinate.y * BomberManConstant.cellSize.height,
+    );
+  }
+
+  static Vector2 getPositionCenter(Point<int> coordinate) {
+    return Vector2(
+      (coordinate.x + 0.5) * BomberManConstant.cellSize.width,
+      (coordinate.y + 0.5) * BomberManConstant.cellSize.height,
+    );
+  }
 }

@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:math';
 
+import 'package:bomber_man/screens/game/core/ability_component.dart';
+import 'package:bomber_man/screens/game/utils/bomber_utils.dart';
 import 'package:bomber_man/screens/game/utils/object_sprite_sheet.dart';
 import 'package:bonfire/bonfire.dart';
 
@@ -61,6 +63,7 @@ class BrickObject extends GameDecorationWithCollision with Attackable {
   @override
   void onDie() {
     super.onDie();
+    final coordinate = BomberUtils.getCoordinate(position);
     removeWhere((component) => component is GameDecoration);
     addAll([
       GameDecoration.withAnimation(
@@ -80,7 +83,13 @@ class BrickObject extends GameDecorationWithCollision with Attackable {
       TimerComponent(
         period: 0.5,
         removeOnFinish: true,
-        onTick: removeFromParent,
+        onTick: () {
+          if(AbilityComponent.random(coordinate: coordinate) case final component?) {
+            gameRef.add(component);
+          }
+
+          removeFromParent();
+        },
       ),
     ]);
   }

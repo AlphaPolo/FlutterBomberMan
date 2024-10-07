@@ -19,6 +19,8 @@ class BombConfigData {
 
 class BombComponent extends GameDecorationWithCollision with Attackable {
 
+  static const lifeTime = 2.5;
+
   final BombConfigData configData;
   final Set<Component> ignoreList = {};
   final PlayerComponent? owner;
@@ -53,8 +55,9 @@ class BombComponent extends GameDecorationWithCollision with Attackable {
     addAll([
       GameDecoration.withAnimation(
         animation: ObjectSpriteSheet.bomb,
-        position: Vector2.zero(),
+        position: size / 2,
         size: size,
+        anchor: Anchor.center,
       ),
       // CircleComponent.relative(
       //   1,
@@ -64,7 +67,7 @@ class BombComponent extends GameDecorationWithCollision with Attackable {
       RectangleHitbox(),
       /// 自傷觸發 onDie
       TimerComponent(
-        period: 3,
+        period: lifeTime,
         removeOnFinish: true,
         onTick: suicide,
       ),
