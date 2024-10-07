@@ -1,60 +1,8 @@
-// import 'dart:async';
-// import 'dart:math';
-//
-// import 'package:bomber_man/providers/settings_provider.dart';
-// import 'package:bomber_man/screens/game/core/bomber_man_constant.dart';
-// import 'package:bomber_man/screens/game/core/player_component.dart';
-// import 'package:bonfire/bonfire.dart';
-// import 'package:collection/collection.dart';
-// import 'package:flame/collisions.dart';
-// import 'package:flame/components.dart';
-// import 'package:flame/extensions.dart';
-// import 'package:flame_behaviors/flame_behaviors.dart';
-// import 'package:flutter/material.dart';
-// import 'package:flutter/services.dart';
-//
-// class MapParser {
-//
-//
-//   const MapParser._();
-//
-//
-//   static Future<List<PositionComponent>> parse(String path) async {
-//     final response = await rootBundle.loadString(path);
-//
-//     Map<String, PositionComponent Function(Point<int>)> mapParser = {
-//       'B' : (coordinate) => BlockObject.createFromMap(coordinate),
-//       '1' : (coordinate) => PlayerComponent.createFromMap(coordinate, BomberManKeyConfig.player1()),
-//       // 'B' : (coordinate) => BlockObject.createFromMap(coordinate),
-//       // 'B' : (coordinate) => BlockObject.createFromMap(coordinate),
-//     };
-//
-//     // for(final (int y, String line) in response.split('\n').mapIndexed((y, line) => (y, line))) {
-//     //
-//     // }
-//
-//
-//     final components = response.split('\n')
-//       .expandIndexed((y, line) {
-//         return line.trim()
-//             .split(',')
-//             .mapIndexed((x, token) => mapParser[token]?.call(Point(x, y)));
-//       })
-//       .whereNotNull()
-//       // .sortedByCompare((component) => component is PlayerComponent ? 1 : 0, (a, b) => a.compareTo(b))
-//       .toList();
-//
-//     return components;
-//   }
-//
-// }
-//
 import 'dart:async';
 import 'dart:math';
 
-import 'package:bomber_man/screens/game/utils/bomber_utils.dart';
+import 'package:bomber_man/screens/game/utils/object_sprite_sheet.dart';
 import 'package:bonfire/bonfire.dart';
-import 'package:flutter/material.dart';
 
 import 'bomber_man_constant.dart';
 
@@ -66,19 +14,27 @@ class BrickObject extends GameDecorationWithCollision with Attackable {
     required super.position,
     required super.size,
     // Iterable<Behavior>? behaviors,
-  }) : super();
+  });
 
   @override
   Future<void> onLoad() async {
     // debugMode = true;
     addAll([
-      TextComponent(
-        text: BomberUtils.getCoordinate(position).toString().substring(5),
-      ),
-      RectangleComponent.relative(
-        Vector2.all(1),
-        parentSize: size,
-        paint: Paint()..color = Colors.grey.withOpacity(0.5),
+
+      // TextComponent(
+      //   text: BomberUtils.getCoordinate(position).toString().substring(5),
+      // ),
+      // RectangleComponent.relative(
+      //   Vector2.all(1),
+      //   parentSize: size,
+      //   paint: Paint()..color = Colors.grey.withOpacity(0.5),
+      // ),
+      GameDecoration.withSprite(
+        sprite: ObjectSpriteSheet.brick2,
+        // position: BomberManConstant.zero,
+        size: size*0.9,
+        anchor: Anchor.center,
+        position: size/2,
       ),
       RectangleHitbox.relative(
         Vector2.all(0.9),
@@ -105,13 +61,28 @@ class BrickObject extends GameDecorationWithCollision with Attackable {
   @override
   void onDie() {
     super.onDie();
-    add(
+    removeWhere((component) => component is GameDecoration);
+    addAll([
+      GameDecoration.withAnimation(
+        animation: SpriteAnimation.load(
+          'tiled/tiles.png',
+          SpriteAnimationData.sequenced(
+            amount: 6,
+            stepTime: 0.1,
+            textureSize: Vector2.all(16),
+            texturePosition: Vector2(80, 48),
+          ),
+        ),
+        size: size*0.9,
+        anchor: Anchor.center,
+        position: size/2,
+      ),
       TimerComponent(
         period: 0.5,
         removeOnFinish: true,
         onTick: removeFromParent,
       ),
-    );
+    ]);
   }
 
 }

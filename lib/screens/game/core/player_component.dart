@@ -118,9 +118,12 @@ class PlayerComponent extends SimplePlayer with BlockMovementCollision  {
   int force = 2;
   int bombCapacity = 2;
 
+  final Color color;
+
   PlayerComponent({
     required super.position,
     required this.keyConfig,
+    required this.color,
   })
       : super(
     // animation: PlayerSpriteSheet.simpleDirectionAnimation,
@@ -136,9 +139,9 @@ class PlayerComponent extends SimplePlayer with BlockMovementCollision  {
         1,
         // Vector2.all(1),
         parentSize: size,
-        paint: Paint()..color = Colors.red,
+        paint: Paint()..color = color,
       ),
-      RectangleHitbox(
+      CircleHitbox(
         // size: size / 2,
         // position: size / 4,
       ),

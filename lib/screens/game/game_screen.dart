@@ -36,6 +36,7 @@ class _GameScreenState extends State<GameScreen> {
       BomberManConstant.cellSize.height * (0 + 0.5),
     ),
     keyConfig: context.read<SettingsProvider>().player1KeyConfig,
+    color: Colors.red,
   );
 
   late PlayerComponent secondPlayer = PlayerComponent(
@@ -44,6 +45,7 @@ class _GameScreenState extends State<GameScreen> {
       BomberManConstant.cellSize.width * (12 + 0.5),
     ),
     keyConfig: context.read<SettingsProvider>().player2KeyConfig,
+    color: Colors.blue,
   );
 
   final ObstacleManager obstacleManager = ObstacleManager();
@@ -53,7 +55,7 @@ class _GameScreenState extends State<GameScreen> {
   Widget build(BuildContext context) {
 
     return BonfireWidget(
-      showCollisionArea: true,
+      // showCollisionArea: true,
       cameraConfig: CameraConfig(
         moveOnlyMapArea: true,
         startFollowPlayer: false,

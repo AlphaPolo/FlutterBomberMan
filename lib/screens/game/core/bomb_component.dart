@@ -4,6 +4,7 @@ import 'package:bomber_man/screens/game/core/bomber_man_constant.dart';
 import 'package:bomber_man/screens/game/core/map_parser.dart';
 import 'package:bomber_man/screens/game/core/obstacle_manager.dart';
 import 'package:bomber_man/screens/game/core/player_component.dart';
+import 'package:bomber_man/screens/game/utils/object_sprite_sheet.dart';
 import 'package:bomber_man/screens/game/utils/bomber_utils.dart';
 import 'package:bonfire/bonfire.dart';
 import 'package:collection/collection.dart';
@@ -50,11 +51,16 @@ class BombComponent extends GameDecorationWithCollision with Attackable {
   @override
   Future<void> onLoad() async {
     addAll([
-      CircleComponent.relative(
-        1,
-        parentSize: size,
-        paint: Paint()..color = Colors.black,
+      GameDecoration.withAnimation(
+        animation: ObjectSpriteSheet.bomb,
+        position: Vector2.zero(),
+        size: size,
       ),
+      // CircleComponent.relative(
+      //   1,
+      //   parentSize: size,
+      //   paint: Paint()..color = Colors.black,
+      // ),
       RectangleHitbox(),
       /// 自傷觸發 onDie
       TimerComponent(
