@@ -11,6 +11,7 @@ class BomberManConstant {
   static const Size gameContentSize = Size(width, height);
   static const Size cellSize = Size(cellSide, cellSide);
   static final Vector2 bombSize = Vector2.all(52);
+  static final Vector2 explodeSize = Vector2.all(48);
 
   /// 寬度總共可以容納多少個tile
   static const int colTiles = width ~/ cellSide;

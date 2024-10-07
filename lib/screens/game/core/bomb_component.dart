@@ -99,12 +99,14 @@ class BombComponent extends GameDecorationWithCollision with Attackable {
 
 
     final explosionData = [
-      (ExplosionDirectionType.cross, explosionPosition),
+      (ExplosionDirectionType.cross, explosionPosition, false),
     ];
 
     for(final direction in ExplosionDirectionType.values.skip(1)) {
       createDirectionChildren(explosionPosition, direction, explosionData);
     }
+
+    gameRef.add(ExplosionAnimation.create(explosionData: explosionData));
   }
 
   void checkHitPlayers(Point<int> explosionPosition) {
@@ -154,10 +156,10 @@ class BombComponent extends GameDecorationWithCollision with Attackable {
   void createDirectionChildren(
     Point<int> centerPosition,
     ExplosionDirectionType direction,
-    List<(ExplosionDirectionType, Point<int>)> explosionData,
+    List<(ExplosionDirectionType, Point<int>, bool)> explosionData,
   ) {
     Point<int> currentPosition = centerPosition;
-    for(int i=configData.force; i>0; i--) {
+    for(int force=configData.force; force>0; force--) {
       currentPosition = direction.nextPosition(currentPosition);
 
       if(checkIsOutOfBounds(currentPosition)) {
@@ -171,7 +173,7 @@ class BombComponent extends GameDecorationWithCollision with Attackable {
 
       checkHitPlayers(currentPosition);
       checkHitBombs(currentPosition);
-      explosionData.add((direction, currentPosition));
+      explosionData.add((direction, currentPosition, force==1));
     }
   }
 
@@ -186,15 +188,16 @@ class BombComponent extends GameDecorationWithCollision with Attackable {
 }
 
 enum ExplosionDirectionType {
-  cross(Point<int>(0, 0)),
-  up(Point<int>(0, -1)),
-  right(Point<int>(1, 0)),
-  down(Point<int>(0, 1)),
-  left(Point<int>(-1, 0));
+  cross(Point<int>(0, 0), 0),
+  up(Point<int>(0, -1), -90 * degrees2Radians),
+  right(Point<int>(1, 0), 0),
+  down(Point<int>(0, 1), 90 * degrees2Radians),
+  left(Point<int>(-1, 0), 180 * degrees2Radians);
 
-  const ExplosionDirectionType(this._nextPoint);
+  const ExplosionDirectionType(this._nextPoint, this.angle);
 
   final Point<int> _nextPoint;
+  final double angle;
 
   Point<int> nextPosition([Point<int>? currentPosition]) {
     if(currentPosition == null) {
@@ -205,24 +208,27 @@ enum ExplosionDirectionType {
 }
 
 class ExplosionAnimation extends GameDecoration {
+  static const double explodeStepTime = 0.055;
 
-  List<(ExplosionDirectionType, Point<int>)> explosionData;
+  List<(ExplosionDirectionType, Point<int>, bool)> explosionData;
+
 
   ExplosionAnimation._({
     required super.position,
     required super.size,
     this.explosionData = const [],
+    super.anchor = Anchor.center,
   });
 
 
   factory ExplosionAnimation.create({
-    required List<(ExplosionDirectionType, Point<int>)> explosionData,
+    required List<(ExplosionDirectionType, Point<int>, bool)> explosionData,
   }) {
 
-    final (_, coordinate) = explosionData.firstWhere((data) => data.$1 == ExplosionDirectionType.cross);
+    final (_, coordinate, _) = explosionData.firstWhere((data) => data.$1 == ExplosionDirectionType.cross);
     final position = Vector2(
-      coordinate.x * BomberManConstant.cellSize.width,
-      coordinate.y * BomberManConstant.cellSize.height,
+      (coordinate.x + 0.5) * BomberManConstant.cellSize.width,
+      (coordinate.y + 0.5) * BomberManConstant.cellSize.height,
     );
 
     return ExplosionAnimation._(
@@ -237,88 +243,53 @@ class ExplosionAnimation extends GameDecoration {
 
   @override
   Future<void> onLoad() async {
-    sprite = await Sprite.load(
-      'spritesheet.png',
-      srcPosition: Vector2(255, 147) - Vector2.all(16),
-      srcSize: Vector2.all(16),
+
+    final centerPosition = BomberUtils.getCoordinate(position);
+    final cellSize = BomberManConstant.cellSize.toVector2();
+
+    final children = explosionData
+        .map((data) => (data.$1, data.$2 - centerPosition, data.$3))
+        .map((data) => mapToExplodeChild(data, cellSize))
+        .whereNotNull();
+
+    addAll(
+      children
+          .followedBy([
+        TimerComponent(
+          period: explodeStepTime * 7,
+          onTick: removeFromParent,
+          removeOnFinish: true,
+        ),
+      ]),
     );
-    applyBleedingPixel(position: position, size: size);
-
-    // final centerPosition = BomberUtils.getCoordinate(position);
-    // final cellSize = BomberManConstant.cellSize.toVector2();
-    // final sprite = await Sprite.load(
-    //   'images/spritesheet.png',
-    //   srcPosition: Vector2(255, 147) - Vector2.all(16),
-    //   srcSize: Vector2.all(16),
-    // );
-    //
-    // final children = explosionData
-    //     .map((data) => (data.$1, data.$2 - centerPosition))
-    //     .map((data) {
-    //
-    //   switch(data) {
-    //     case (ExplosionDirectionType.cross, _):
-    //       return GameDecoration(
-    //         sprite: sprite,
-    //         position: Vector2.zero(),
-    //         size: cellSize,
-    //       );
-    //     case (ExplosionDirectionType.up, final position):
-    //       final paint = Paint()..color = Colors.red;
-    //       return GameDecoration(
-    //         sprite: sprite,
-    //         position: Vector2(
-    //           position.x * BomberManConstant.cellSize.width,
-    //           position.y * BomberManConstant.cellSize.height,
-    //         ),
-    //         size: cellSize,
-    //       )..paint = paint;
-    //
-    //     case (ExplosionDirectionType.right, final position):
-    //       final paint = Paint()..color = Colors.black;
-    //       return GameDecoration(
-    //         sprite: sprite,
-    //
-    //         position: Vector2(
-    //           position.x * BomberManConstant.cellSize.width,
-    //           position.y * BomberManConstant.cellSize.height,
-    //         ),
-    //         size: cellSize,
-    //       )..paint = paint;
-    //
-    //     case (ExplosionDirectionType.down, final position):
-    //       final paint = Paint()..color = Colors.yellow;
-    //       return GameDecoration(
-    //         sprite: sprite,
-    //
-    //         position: Vector2(
-    //           position.x * BomberManConstant.cellSize.width,
-    //           position.y * BomberManConstant.cellSize.height,
-    //         ),
-    //         size: cellSize,
-    //       )..paint = paint;
-    //
-    //     case (ExplosionDirectionType.left, final position):
-    //       final paint = Paint()..color = Colors.blue;
-    //       return GameDecoration(
-    //         sprite: sprite,
-    //
-    //         position: Vector2(
-    //           position.x * BomberManConstant.cellSize.width,
-    //           position.y * BomberManConstant.cellSize.height,
-    //         ),
-    //         size: cellSize,
-    //       )..paint = paint;
-    //
-    //   }
-    // });
-    //
-    // addAll(children.whereNotNull());
-
-
   }
 
+  Component mapToExplodeChild((ExplosionDirectionType, Point<int>, bool) data, Vector2 cellSize) {
+    final (ExplosionDirectionType type, Point<int> position, bool isEdge) = data;
 
+    final double textureY = switch(type) {
+      ExplosionDirectionType.cross => 0,
+      _ when !isEdge => 49,
+      _ => 97,
+    };
 
-
+    return GameDecoration.withAnimation(
+      animation: SpriteAnimation.load(
+        "explode_sheet.png",
+        SpriteAnimationData.sequenced(
+          amount: 7,
+          textureSize: BomberManConstant.explodeSize,
+          texturePosition: Vector2(0, textureY),
+          stepTime: explodeStepTime,
+        ),
+      ),
+      position: Vector2(
+        (position.x + 0.5) * BomberManConstant.cellSize.width,
+        (position.y + 0.5) * BomberManConstant.cellSize.height,
+      ),
+      anchor: Anchor.center,
+      size: cellSize,
+      angle: type.angle,
+    );
+  }
 }
