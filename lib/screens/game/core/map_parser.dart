@@ -52,12 +52,13 @@
 import 'dart:async';
 import 'dart:math';
 
+import 'package:bomber_man/screens/game/utils/bomber_utils.dart';
 import 'package:bonfire/bonfire.dart';
 import 'package:flutter/material.dart';
 
 import 'bomber_man_constant.dart';
 
-class BrickObject extends GameDecorationWithCollision {
+class BrickObject extends GameDecorationWithCollision with Attackable {
 
   BrickObject._({
     // super.priority = BomberManConstant.environment,
@@ -71,6 +72,9 @@ class BrickObject extends GameDecorationWithCollision {
   Future<void> onLoad() async {
     // debugMode = true;
     addAll([
+      TextComponent(
+        text: BomberUtils.getCoordinate(position).toString().substring(5),
+      ),
       RectangleComponent.relative(
         Vector2.all(1),
         parentSize: size,
@@ -86,12 +90,27 @@ class BrickObject extends GameDecorationWithCollision {
   }
 
   factory BrickObject.createFromMap(Point<int> coordinate) {
-    return BrickObject._(
+    final brick = BrickObject._(
       position: Vector2(
-        coordinate.x * BomberManConstant.cellSize.width,
-        coordinate.y * BomberManConstant.cellSize.height,
+        (coordinate.x + 0.5) * BomberManConstant.cellSize.width,
+        (coordinate.y + 0.5) * BomberManConstant.cellSize.height,
       ),
       size: BomberManConstant.cellSize.toVector2(),
+    );
+    brick.anchor = Anchor.center;
+
+    return brick;
+  }
+
+  @override
+  void onDie() {
+    super.onDie();
+    add(
+      TimerComponent(
+        period: 0.5,
+        removeOnFinish: true,
+        onTick: removeFromParent,
+      ),
     );
   }
 

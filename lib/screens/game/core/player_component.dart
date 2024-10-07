@@ -99,21 +99,32 @@
 //   }
 // }
 
+import 'dart:math';
+
+import 'package:bomber_man/screens/game/core/bomb_component.dart';
 import 'package:bomber_man/screens/game/core/bomber_man_constant.dart';
+import 'package:bomber_man/screens/game/utils/bomber_utils.dart';
 import 'package:bonfire/bonfire.dart';
 import 'package:flutter/material.dart';
+
+import '../../../providers/settings_provider.dart';
 
 class PlayerComponent extends SimplePlayer with BlockMovementCollision  {
   static const double defaultSpeed = 300;
   late final Vector2 halfSize;
 
-  int bombCapacity = 1;
+  final BomberManKeyConfig keyConfig;
 
-  PlayerComponent(Vector2 position, Vector2 collisionSize)
+  int force = 2;
+  int bombCapacity = 2;
+
+  PlayerComponent({
+    required super.position,
+    required this.keyConfig,
+  })
       : super(
     // animation: PlayerSpriteSheet.simpleDirectionAnimation,
     size: Vector2(56, 56),
-    position: position,
     speed: defaultSpeed,
   );
 
@@ -143,8 +154,87 @@ class PlayerComponent extends SimplePlayer with BlockMovementCollision  {
     checkOutOfBounds();
   }
 
-  void checkOutOfBounds() {
+  @override
+  bool onBlockMovement(Set<Vector2> intersectionPoints, GameComponent other) {
+    switch(other) {
+      case PlayerComponent():
+        return false;
+      case BombComponent():
+        return !other.ignoreList.contains(this);
+      // case BrickObject():
+      //   return false;
+    }
+    return super.onBlockMovement(intersectionPoints, other);
+  }
 
+  @override
+  void onJoystickAction(JoystickActionEvent event) {
+    if(isDead) return;
+    if(event case JoystickActionEvent(event: ActionEvent.DOWN)) {
+      if(event.id == keyConfig.getLogicalKey(BomberManKey.actionBomb)) {
+        placeBomb();
+      }
+      if(event.id == keyConfig.getLogicalKey(BomberManKey.actionThrow)) {
+        throwBomb();
+      }
+    }
+    super.onJoystickAction(event);
+  }
+
+
+
+  void checkOutOfBounds() {
     position.clamp(halfSize, BomberManConstant.gameSize - halfSize);
   }
+
+  void placeBomb() {
+    final coordinate = BomberUtils.getCoordinate(position);
+
+    if(alreadyOverBombCapacity()) {
+      print('超過最大炸彈數');
+      return;
+    }
+
+    if(alreadyHasBomb(coordinate)) {
+      print('下方已經有炸彈');
+      return;
+    }
+
+    gameRef.add(
+      BombComponent.create(
+        this,
+        coordinate,
+        BombConfigData(force),
+      ),
+    );
+
+    print('placeBomb');
+  }
+
+  void throwBomb() {
+    print(properties);
+    print('throwBomb');
+  }
+
+  bool alreadyOverBombCapacity() {
+    return gameRef.query<BombComponent>()
+        .where((bomb) => bomb.owner == this)
+        .length >= bombCapacity;
+  }
+
+  bool alreadyHasBomb(Point<int> coordinate) {
+    return gameRef.query<BombComponent>()
+        .map((bomb) => BomberUtils.getCoordinate(bomb.position))
+        .any((position) => position == coordinate);
+  }
+
+  @override
+  void onDie() {
+    super.onDie();
+
+    removeFromParent();
+    print('player onDie');
+  }
+
+
 }
