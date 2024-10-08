@@ -20,7 +20,7 @@ class AbilitySpeed extends Ability {
 
   @override
   void applyToPlayer(PlayerComponent player) {
-    player.speed = min(player.speed + 50, PlayerComponent.maxSpeed);
+    player.speed = min(player.speed + 40, PlayerComponent.maxSpeed);
   }
 
 }

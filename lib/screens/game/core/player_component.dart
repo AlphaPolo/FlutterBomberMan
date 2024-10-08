@@ -110,7 +110,7 @@ import 'package:flutter/material.dart';
 import '../../../providers/settings_provider.dart';
 
 class PlayerComponent extends SimplePlayer with BlockMovementCollision  {
-  static const double maxSpeed = 600;
+  static const double maxSpeed = 550;
   static const double defaultSpeed = 250;
   late final Vector2 halfSize;
 
@@ -133,7 +133,7 @@ class PlayerComponent extends SimplePlayer with BlockMovementCollision  {
   })
       : super(
     // animation: PlayerSpriteSheet.simpleDirectionAnimation,
-    size: Vector2(56, 56),
+    size: Vector2(52, 52),
     speed: defaultSpeed,
   );
 
@@ -174,6 +174,14 @@ class PlayerComponent extends SimplePlayer with BlockMovementCollision  {
       //   return false;
     }
     return super.onBlockMovement(intersectionPoints, other);
+  }
+
+  @override
+  void onBlockedMovement(PositionComponent other, CollisionData collisionData) {
+    // TODO: implement onBlockedMovement
+    final v = velocity;
+    super.onBlockedMovement(other, collisionData);
+    velocity = v;
   }
 
   @override

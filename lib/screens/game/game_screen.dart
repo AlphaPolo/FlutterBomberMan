@@ -5,6 +5,7 @@ import 'package:bomber_man/screens/game/core/bomber_man_constant.dart';
 import 'package:bomber_man/screens/game/core/map_parser.dart';
 import 'package:bomber_man/screens/game/core/obstacle_manager.dart';
 import 'package:bomber_man/screens/game/core/player_component.dart';
+import 'package:bomber_man/screens/game/utils/bomber_utils.dart';
 import 'package:bonfire/bonfire.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -31,18 +32,16 @@ class _GameScreenState extends State<GameScreen> {
   // final BomberManGame game = BomberManGame();
 
   late PlayerComponent firstPlayer = PlayerComponent(
-    position: Vector2(
-      BomberManConstant.cellSize.width * (0 + 0.5),
-      BomberManConstant.cellSize.height * (0 + 0.5),
+    position: BomberUtils.getPositionCenter(
+      const Point<int>(0, 0),
     ),
     keyConfig: context.read<SettingsProvider>().player1KeyConfig,
     color: Colors.red,
   );
 
   late PlayerComponent secondPlayer = PlayerComponent(
-    position: Vector2(
-      BomberManConstant.cellSize.width * (14 + 0.5),
-      BomberManConstant.cellSize.width * (12 + 0.5),
+    position: BomberUtils.getPositionCenter(
+      const Point<int>(14, 12),
     ),
     keyConfig: context.read<SettingsProvider>().player2KeyConfig,
     color: Colors.blue,
