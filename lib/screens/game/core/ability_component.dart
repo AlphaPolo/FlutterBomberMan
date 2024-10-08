@@ -24,7 +24,7 @@ class AbilityComponent extends GameDecorationWithCollision {
     () => AbilityCapacity() : 0.5,
     () => AbilitySpeed() : 0.5,
     () => AbilityPower() : 0.5,
-    () => AbilityKick() : 0.1,
+    () => AbilityKick() : 0,
     () => AbilityGoldenPower() : 0,
     () => AbilityThrow() : 0,
     () => AbilitySkull() : 0,
@@ -59,15 +59,15 @@ class AbilityComponent extends GameDecorationWithCollision {
 
     final totalWeights = weightsMap.values.sum;
     final diceWeight = random.nextDouble() * totalWeights;
-
     double weightSum = 0;
 
     Ability? choose;
 
     for(final MapEntry(key: supply, value: weight) in weightsMap.entries) {
       weightSum += weight;
-      if(weightSum < diceWeight) {
+      if(diceWeight < weightSum) {
         choose = supply();
+        break;
       }
     }
 

@@ -25,6 +25,8 @@ class BombComponent extends GameDecorationWithCollision with Attackable {
   final Set<Component> ignoreList = {};
   final PlayerComponent? owner;
 
+  final ExplosionDirectionType currentDirection = ExplosionDirectionType.cross;
+
   BombComponent._({
     required this.owner,
     required this.configData,
@@ -52,6 +54,12 @@ class BombComponent extends GameDecorationWithCollision with Attackable {
 
   @override
   Future<void> onLoad() async {
+    // setupPushable(
+    //   pushPerCellEnabled: true,
+    //   pushPerCellDuration: 1,
+    //   cellSize: BomberManConstant.cellSize.toVector2(),
+    // );
+
     addAll([
       GameDecoration.withAnimation(
         animation: ObjectSpriteSheet.bomb,

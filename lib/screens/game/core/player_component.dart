@@ -181,6 +181,14 @@ class PlayerComponent extends SimplePlayer with BlockMovementCollision  {
     // TODO: implement onBlockedMovement
     final v = velocity;
     super.onBlockedMovement(other, collisionData);
+
+    if(other case BombComponent(currentDirection: ExplosionDirectionType.cross)) {
+      final currentPosition = BomberUtils.getCoordinate(position);
+
+      // other.add(
+      //   MoveByEffect(BomberManConstant.right * BomberManConstant.cellSide * 2, EffectController(duration: 1)),
+      // );
+    }
     velocity = v;
   }
 
