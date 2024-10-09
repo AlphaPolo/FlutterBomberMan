@@ -24,7 +24,7 @@ class AbilityComponent extends GameDecorationWithCollision {
     () => AbilityCapacity() : 0.5,
     () => AbilitySpeed() : 0.5,
     () => AbilityPower() : 0.5,
-    () => AbilityKick() : 0,
+    () => AbilityKick() : 0.1,
     () => AbilityGoldenPower() : 0,
     () => AbilityThrow() : 0,
     () => AbilitySkull() : 0,

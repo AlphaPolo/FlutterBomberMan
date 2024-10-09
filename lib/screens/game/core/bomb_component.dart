@@ -1,14 +1,16 @@
 import 'dart:math';
 
+import 'package:bomber_man/screens/game/core/ability_component.dart';
 import 'package:bomber_man/screens/game/core/bomber_man_constant.dart';
 import 'package:bomber_man/screens/game/core/map_parser.dart';
 import 'package:bomber_man/screens/game/core/obstacle_manager.dart';
 import 'package:bomber_man/screens/game/core/player_component.dart';
-import 'package:bomber_man/screens/game/utils/object_sprite_sheet.dart';
 import 'package:bomber_man/screens/game/utils/bomber_utils.dart';
+import 'package:bomber_man/screens/game/utils/object_sprite_sheet.dart';
 import 'package:bonfire/bonfire.dart';
 import 'package:collection/collection.dart';
-import 'package:flutter/material.dart';
+
+import '../../../utils/my_print.dart';
 
 class BombConfigData {
   /// 火力
@@ -25,7 +27,7 @@ class BombComponent extends GameDecorationWithCollision with Attackable {
   final Set<Component> ignoreList = {};
   final PlayerComponent? owner;
 
-  final ExplosionDirectionType currentDirection = ExplosionDirectionType.cross;
+  ExplosionDirectionType currentDirection = ExplosionDirectionType.cross;
 
   BombComponent._({
     required this.owner,
@@ -39,7 +41,7 @@ class BombComponent extends GameDecorationWithCollision with Attackable {
     Point<int> coordinate,
     BombConfigData configData,
   ) {
-    final bomb = BombComponent._(
+   return BombComponent._(
       owner: owner,
       configData: configData,
       position: Vector2(
@@ -47,10 +49,27 @@ class BombComponent extends GameDecorationWithCollision with Attackable {
         BomberManConstant.cellSize.height * (coordinate.y + 0.5),
       ),
       size: BomberManConstant.bombSize,
-    )..anchor = Anchor.center;
-    return bomb;
+    );
   }
 
+  @override
+  void update(double dt) {
+    super.update(dt);
+
+    if(currentDirection != ExplosionDirectionType.cross) {
+      final oldCell = BomberUtils.getCoordinate(position);
+      final directionForce = currentDirection.getVector2();
+      position.add(directionForce.scaled(700 * dt));
+
+      final nextCellPosition = position + directionForce.scaled(BomberManConstant.cellSide);
+      final nextCell = BomberUtils.getCoordinate(nextCellPosition);
+      if (oldCell.distanceTo(nextCell) == 1 && checkIsHitEnvironment(nextCell)) {
+        currentDirection = ExplosionDirectionType.cross;
+        position = BomberUtils.getPositionCenter(oldCell);
+      }
+    }
+
+  }
 
   @override
   Future<void> onLoad() async {
@@ -59,6 +78,7 @@ class BombComponent extends GameDecorationWithCollision with Attackable {
     //   pushPerCellDuration: 1,
     //   cellSize: BomberManConstant.cellSize.toVector2(),
     // );
+    anchor = Anchor.center;
 
     addAll([
       GameDecoration.withAnimation(
@@ -72,7 +92,9 @@ class BombComponent extends GameDecorationWithCollision with Attackable {
       //   parentSize: size,
       //   paint: Paint()..color = Colors.black,
       // ),
-      RectangleHitbox(),
+      RectangleHitbox(
+        isSolid: true,
+      ),
       /// 自傷觸發 onDie
       TimerComponent(
         period: lifeTime,
@@ -88,8 +110,34 @@ class BombComponent extends GameDecorationWithCollision with Attackable {
     addAbovePlayerToIgnoreList();
   }
 
+  @override
+  void onRemove() {
+    ignoreList.clear();
+    super.onRemove();
+  }
+
   void suicide() {
     handleAttack(AttackOriginEnum.WORLD, 1000, null);
+  }
+
+  @override
+  void onCollision(Set<Vector2> intersectionPoints, PositionComponent other) {
+    super.onCollision(intersectionPoints, other);
+
+    if(currentDirection == ExplosionDirectionType.cross) {
+      return;
+    }
+
+    if(ignoreList.contains(other)) {
+      return;
+    }
+
+    if(other is AbilityComponent) {
+      return;
+    }
+
+    currentDirection = ExplosionDirectionType.cross;
+    position = BomberUtils.getPositionCenter(BomberUtils.getCoordinate(position));
   }
 
   @override
@@ -158,7 +206,7 @@ class BombComponent extends GameDecorationWithCollision with Attackable {
     }
 
     final coordinate = BomberUtils.getCoordinate(wall.position);
-    print('coordinate: $coordinate, position: ${wall.position}');
+    myPrint('coordinate: $coordinate, position: ${wall.position}');
     wall.handleAttack(AttackOriginEnum.WORLD, 1000, this);
     return true;
   }
@@ -180,7 +228,7 @@ class BombComponent extends GameDecorationWithCollision with Attackable {
       currentPosition = direction.nextPosition(currentPosition);
 
       if(checkIsOutOfBounds(currentPosition)) {
-        print('$currentPosition is out of bounds');
+        myPrint('$currentPosition is out of bounds');
         break;
       }
 
@@ -197,9 +245,18 @@ class BombComponent extends GameDecorationWithCollision with Attackable {
   bool checkIsOutOfBounds(Point<int> currentPosition) {
     return switch(currentPosition) {
       Point(x: <0 || >=BomberManConstant.colTiles) => true,
-      Point(y: <0 || >=BomberManConstant.colTiles) => true,
+      Point(y: <0 || >=BomberManConstant.rowTiles) => true,
       _ => false,
     };
+  }
+
+  bool checkIsHitEnvironment(Point<int> nextCell) {
+    return gameRef.query<ObstacleManager>().firstOrNull?.hasObstacleAt(nextCell) ?? false;
+  }
+
+  void applyKickForce(ExplosionDirectionType direction) {
+    currentDirection = direction;
+    myPrint('currentDirection: $currentDirection');
   }
 
 }
@@ -222,6 +279,16 @@ enum ExplosionDirectionType {
     }
     return currentPosition + _nextPoint;
   }
+
+  Vector2 getVector2() {
+    return switch (this) {
+      ExplosionDirectionType.cross => BomberManConstant.zero,
+      ExplosionDirectionType.up => BomberManConstant.up,
+      ExplosionDirectionType.right => BomberManConstant.right,
+      ExplosionDirectionType.down => BomberManConstant.down,
+      ExplosionDirectionType.left => BomberManConstant.left,
+    };
+  }
 }
 
 class ExplosionAnimation extends GameDecoration {
@@ -235,7 +302,9 @@ class ExplosionAnimation extends GameDecoration {
     required super.size,
     this.explosionData = const [],
     super.anchor = Anchor.center,
-  });
+  }) {
+    priority = BomberManConstant.effect;
+  }
 
 
   factory ExplosionAnimation.create({

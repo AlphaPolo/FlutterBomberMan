@@ -28,7 +28,7 @@
 //   @mustCallSuper
 //   void onCollision(Set<Vector2> intersectionPoints, PositionComponent other) {
 //     super.onCollision(intersectionPoints, other);
-//     print('onCollision');
+//    myPrint('onCollision');
 //     findBehavior<MovingBehavior>().queueCollision(
 //       other: other,
 //       intersectionPoints: intersectionPoints,

@@ -16,7 +16,9 @@ class BrickObject extends GameDecorationWithCollision with Attackable {
     required super.position,
     required super.size,
     // Iterable<Behavior>? behaviors,
-  });
+  }) {
+    priority = BomberManConstant.environment;
+  }
 
   @override
   Future<void> onLoad() async {

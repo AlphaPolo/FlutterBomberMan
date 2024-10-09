@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:bomber_man/screens/game/core/bomber_man_constant.dart';
 import 'package:bonfire/bonfire.dart';
 import 'package:collection/collection.dart';
 
@@ -9,12 +10,22 @@ class ObstacleManager extends GameComponent {
 
   @override
   Future<void> onLoad() async {
+    final component = GameDecorationWithCollision(
+      position: BomberManConstant.zero,
+      size: BomberManConstant.gameSize,
+    );
 
+    gameRef.add(component);
+
+    component.add(RectangleHitbox(
+      collisionType: CollisionType.passive,
+    ));
   }
 
   @override
   void onMount() {
     super.onMount();
+
     final result = gameRef.map.layers
       .firstWhereOrNull((layer) => layer.name == 'blocks')
       ?.tiles;

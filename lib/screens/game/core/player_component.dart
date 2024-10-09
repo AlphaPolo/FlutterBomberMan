@@ -108,6 +108,7 @@ import 'package:bonfire/bonfire.dart';
 import 'package:flutter/material.dart';
 
 import '../../../providers/settings_provider.dart';
+import '../../../utils/my_print.dart';
 
 class PlayerComponent extends SimplePlayer with BlockMovementCollision  {
   static const double maxSpeed = 550;
@@ -135,7 +136,9 @@ class PlayerComponent extends SimplePlayer with BlockMovementCollision  {
     // animation: PlayerSpriteSheet.simpleDirectionAnimation,
     size: Vector2(52, 52),
     speed: defaultSpeed,
-  );
+  ) {
+    priority = BomberManConstant.player;
+  }
 
   @override
   Future<void> onLoad() {
@@ -182,15 +185,47 @@ class PlayerComponent extends SimplePlayer with BlockMovementCollision  {
     final v = velocity;
     super.onBlockedMovement(other, collisionData);
 
-    if(other case BombComponent(currentDirection: ExplosionDirectionType.cross)) {
-      final currentPosition = BomberUtils.getCoordinate(position);
-
-      // other.add(
-      //   MoveByEffect(BomberManConstant.right * BomberManConstant.cellSide * 2, EffectController(duration: 1)),
-      // );
-    }
+    checkKickBomb(other);
     velocity = v;
   }
+
+  void checkKickBomb(PositionComponent other) {
+    /// 如果沒有這個能力直接return
+    if(!actionKick) {
+      return;
+    }
+
+    if(other case BombComponent bomb) {
+      myPrint(bomb.currentDirection);
+      if(bomb.ignoreList.contains(this)) return;
+      if(bomb.currentDirection != ExplosionDirectionType.cross) return;
+      myPrint('pass');
+      final currentPosition = BomberUtils.getCoordinate(position);
+      final bombPosition = BomberUtils.getCoordinate(other.position);
+      switch(bombPosition - currentPosition) {
+        /// up
+        case Point<int>(x:0, y:-1):
+          other.applyKickForce(ExplosionDirectionType.up);
+        /// down
+        case Point<int>(x:0, y:1):
+          other.applyKickForce(ExplosionDirectionType.down);
+        /// left
+        case Point<int>(x:-1, y:0):
+          other.applyKickForce(ExplosionDirectionType.left);
+        /// right
+        case Point<int>(x:1, y:0):
+          other.applyKickForce(ExplosionDirectionType.right);
+      }
+    }
+  }
+
+  // @override
+  // void onCollisionStart(Set<Vector2> intersectionPoints, PositionComponent other) {
+  //   super.onCollisionStart(intersectionPoints, other);
+  //   myPrint('collision: $other');
+  //   final currentPosition = BomberUtils.getCoordinate(position);
+  //
+  // }
 
   @override
   void onJoystickAction(JoystickActionEvent event) {
@@ -216,12 +251,12 @@ class PlayerComponent extends SimplePlayer with BlockMovementCollision  {
     final coordinate = BomberUtils.getCoordinate(position);
 
     if(alreadyOverBombCapacity()) {
-      print('超過最大炸彈數');
+      myPrint('超過最大炸彈數');
       return;
     }
 
     if(alreadyHasBomb(coordinate)) {
-      print('下方已經有炸彈');
+      myPrint('下方已經有炸彈');
       return;
     }
 
@@ -233,12 +268,12 @@ class PlayerComponent extends SimplePlayer with BlockMovementCollision  {
       ),
     );
 
-    print('placeBomb');
+    myPrint('placeBomb');
   }
 
   void throwBomb() {
-    print(properties);
-    print('throwBomb');
+    myPrint(properties);
+    myPrint('throwBomb');
   }
 
   bool alreadyOverBombCapacity() {
@@ -258,7 +293,7 @@ class PlayerComponent extends SimplePlayer with BlockMovementCollision  {
     super.onDie();
 
     removeFromParent();
-    print('player onDie');
+    myPrint('player onDie');
   }
 
 

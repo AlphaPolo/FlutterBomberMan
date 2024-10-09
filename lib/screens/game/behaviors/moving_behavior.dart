@@ -80,11 +80,11 @@
 //       final otherRect = other.toRect();
 //
 //       // if (_cachedMovementThisFrame.isUp && isOverlaps) {
-//       //   print('up');
+//       //  myPrint('up');
 //       //   parent.position.y = _originalPosition.y;
 //       // }
 //       // if (_cachedMovementThisFrame.isDown && isOverlaps) {
-//       //   print('down');
+//       //  myPrint('down');
 //       //   parent.position.y = _originalPosition.y;
 //       // }
 //
@@ -99,11 +99,11 @@
 //     final isOverlaps = otherRect.overlaps(playerRect);
 //
 //     if (_cachedMovementThisFrame.isLeft && isOverlaps) {
-//       print('left');
+//      myPrint('left');
 //       parent.position.x = _originalPosition.x;
 //     }
 //     if (_cachedMovementThisFrame.isRight && isOverlaps) {
-//       print('right');
+//      myPrint('right');
 //       parent.position.x = _originalPosition.x;
 //     }
 //   }
@@ -113,11 +113,11 @@
 //     final isOverlaps = otherRect.overlaps(playerRect);
 //
 //     if (_cachedMovementThisFrame.isUp && isOverlaps) {
-//       print('up');
+//      myPrint('up');
 //       parent.position.y = _originalPosition.y;
 //     }
 //     if (_cachedMovementThisFrame.isDown && isOverlaps) {
-//       print('down');
+//      myPrint('down');
 //       parent.position.y = _originalPosition.y;
 //     }
 //   }
