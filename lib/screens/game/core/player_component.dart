@@ -103,12 +103,13 @@ import 'dart:math';
 
 import 'package:bomber_man/screens/game/core/bomb_component.dart';
 import 'package:bomber_man/screens/game/core/bomber_man_constant.dart';
+import 'package:bomber_man/screens/game/utils/blink_effect.dart';
 import 'package:bomber_man/screens/game/utils/bomber_utils.dart';
 import 'package:bonfire/bonfire.dart';
-import 'package:flutter/material.dart';
 
 import '../../../providers/settings_provider.dart';
 import '../../../utils/my_print.dart';
+import '../utils/player_sprite_sheet.dart';
 
 class PlayerComponent extends SimplePlayer with BlockMovementCollision  {
   static const double maxSpeed = 550;
@@ -123,47 +124,51 @@ class PlayerComponent extends SimplePlayer with BlockMovementCollision  {
   bool actionKick = false;
   bool actionThrow = false;
 
-  final Color color;
 
 
 
   PlayerComponent({
     required super.position,
     required this.keyConfig,
-    required this.color,
+    required int playerIndex,
   })
       : super(
-    // animation: PlayerSpriteSheet.simpleDirectionAnimation,
-    size: Vector2(52, 52),
+    animation: PlayerSpriteSheet.simpleDirectionAnimation(playerIndex),
+    size: Vector2(52, 78),
     speed: defaultSpeed,
+    initDirection: Direction.down,
   ) {
     priority = BomberManConstant.player;
   }
 
   @override
   Future<void> onLoad() {
-    anchor = Anchor.center;
+    anchor = const Anchor(0.5, 2/3);
+    final hitBoxPosition = Vector2(
+      size.x * anchor.x,
+      size.y * anchor.y,
+    );
+
+    // debugMode = true;
     addAll([
-      CircleComponent.relative(
-        1,
-        // Vector2.all(1),
-        parentSize: size,
-        paint: Paint()..color = color,
-      ),
+      // CircleComponent.relative(
+      //   1,
+      //   // Vector2.all(1),
+      //   parentSize: size,
+      //   paint: Paint()..color = color,
+      //   // anchor: Anchor.center,
+      // ),
       CircleHitbox(
+        position: hitBoxPosition,
+        anchor: Anchor.center,
+        radius: 26,
         // size: size / 2,
         // position: size / 4,
       ),
     ]);
 
-    halfSize = size / 2;
+    halfSize = Vector2.all(26);
     return super.onLoad();
-  }
-
-  @override
-  void update(double dt) {
-    super.update(dt);
-    checkOutOfBounds();
   }
 
   @override
@@ -219,13 +224,11 @@ class PlayerComponent extends SimplePlayer with BlockMovementCollision  {
     }
   }
 
-  // @override
-  // void onCollisionStart(Set<Vector2> intersectionPoints, PositionComponent other) {
-  //   super.onCollisionStart(intersectionPoints, other);
-  //   myPrint('collision: $other');
-  //   final currentPosition = BomberUtils.getCoordinate(position);
-  //
-  // }
+  @override
+  void update(double dt) {
+    super.update(dt);
+    checkOutOfBounds();
+  }
 
   @override
   void onJoystickAction(JoystickActionEvent event) {
@@ -291,6 +294,31 @@ class PlayerComponent extends SimplePlayer with BlockMovementCollision  {
   @override
   void onDie() {
     super.onDie();
+
+    AnimatedGameObject? stub;
+
+    stub = AnimatedGameObject(
+      position: topLeftPosition,
+      size: size,
+      animation: animation?.others[PlayerSpriteSheet.playerDead],
+      removeOnFinish: false,
+      loop: false,
+      onFinish: () {
+        stub?.add(
+          createBlinkEffect(
+            type: BlinkType.fadeOut,
+            onComplete: () {
+              stub?.removeFromParent();
+            },
+          ),
+        );
+      },
+    );
+
+    gameRef.add(
+      stub,
+    );
+
 
     removeFromParent();
     myPrint('player onDie');

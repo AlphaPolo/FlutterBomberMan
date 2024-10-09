@@ -2,133 +2,155 @@ import 'package:bonfire/bonfire.dart';
 
 class PlayerSpriteSheet {
 
+  const PlayerSpriteSheet._();
+
+  static const String playerDead = 'playerDead';
+
   static final Vector2 playerTextureSize = Vector2(16, 24);
 
-  static Vector2 getPlayerTexturePosition(int x, int y) {
+  static Vector2 getPlayerTexturePosition(int x, int playerIndex) {
     return Vector2(
       playerTextureSize.x * x,
-      playerTextureSize.y * y,
+      playerTextureSize.y * playerIndex,
     );
   }
 
-  static Future<SpriteAnimation> get idleUp => SpriteAnimation.load(
+  static Future<SpriteAnimation> idleUp(int playerIndex) => SpriteAnimation.load(
     "spritesheet.png",
     SpriteAnimationData.sequenced(
       amount: 1,
       textureSize: playerTextureSize,
-      texturePosition: getPlayerTexturePosition(10, 0),
+      texturePosition: getPlayerTexturePosition(10, playerIndex),
       stepTime: 0.5,
     ),
   );
 
-  static Future<SpriteAnimation> get idleDown => SpriteAnimation.load(
+  static Future<SpriteAnimation> idleDown(int playerIndex) => SpriteAnimation.load(
     "spritesheet.png",
     SpriteAnimationData.sequenced(
       amount: 1,
       textureSize: playerTextureSize,
-      texturePosition: getPlayerTexturePosition(1, 0),
+      texturePosition: getPlayerTexturePosition(1, playerIndex),
       stepTime: 0.5,
     ),
   );
 
-  static Future<SpriteAnimation> get idleLeft => SpriteAnimation.load(
+  static Future<SpriteAnimation> idleLeft(int playerIndex) => SpriteAnimation.load(
     "spritesheet.png",
     SpriteAnimationData.sequenced(
       amount: 1,
       textureSize: playerTextureSize,
-      texturePosition: getPlayerTexturePosition(4, 0),
+      texturePosition: getPlayerTexturePosition(4, playerIndex),
       stepTime: 0.5,
     ),
   );
 
-  static Future<SpriteAnimation> get idleRight => SpriteAnimation.load(
+  static Future<SpriteAnimation> idleRight(int playerIndex) => SpriteAnimation.load(
     "spritesheet.png",
     SpriteAnimationData.sequenced(
       amount: 1,
       textureSize: playerTextureSize,
-      texturePosition: getPlayerTexturePosition(7, 0),
+      texturePosition: getPlayerTexturePosition(7, playerIndex),
       stepTime: 0.5,
     ),
   );
 
-  static Future<SpriteAnimation> get runUp => SpriteAnimation.load(
+  static Future<SpriteAnimation> runUp(int playerIndex) => SpriteAnimation.load(
     "spritesheet.png",
     SpriteAnimationData([
       ...SpriteAnimationData.sequenced(
         amount: 3,
         stepTime: 0.1,
         textureSize: playerTextureSize,
-        texturePosition: getPlayerTexturePosition(9, 0),
+        texturePosition: getPlayerTexturePosition(9, playerIndex),
       ).frames,
       SpriteAnimationFrameData(
         srcSize: playerTextureSize,
-        srcPosition: getPlayerTexturePosition(10, 0),
+        srcPosition: getPlayerTexturePosition(10, playerIndex),
         stepTime: 0.1,
       ),
     ]),
   );
 
-  static Future<SpriteAnimation> get runDown => SpriteAnimation.load(
+  static Future<SpriteAnimation> runDown(int playerIndex) => SpriteAnimation.load(
     "spritesheet.png",
     SpriteAnimationData([
       ...SpriteAnimationData.sequenced(
         amount: 3,
         stepTime: 0.1,
         textureSize: playerTextureSize,
-        texturePosition: getPlayerTexturePosition(0, 0),
+        texturePosition: getPlayerTexturePosition(0, playerIndex),
       ).frames,
       SpriteAnimationFrameData(
         srcSize: playerTextureSize,
-        srcPosition: getPlayerTexturePosition(1, 0),
+        srcPosition: getPlayerTexturePosition(1, playerIndex),
         stepTime: 0.1,
       ),
     ]),
   );
 
 
-  static Future<SpriteAnimation> get runLeft => SpriteAnimation.load(
+  static Future<SpriteAnimation> runLeft(int playerIndex) => SpriteAnimation.load(
     "spritesheet.png",
     SpriteAnimationData([
       ...SpriteAnimationData.sequenced(
         amount: 3,
         stepTime: 0.1,
         textureSize: playerTextureSize,
-        texturePosition: getPlayerTexturePosition(3, 0),
+        texturePosition: getPlayerTexturePosition(3, playerIndex),
       ).frames,
       SpriteAnimationFrameData(
         srcSize: playerTextureSize,
-        srcPosition: getPlayerTexturePosition(4, 0),
+        srcPosition: getPlayerTexturePosition(4, playerIndex),
         stepTime: 0.1,
       ),
     ]),
   );
 
-  static Future<SpriteAnimation> get runRight => SpriteAnimation.load(
+  static Future<SpriteAnimation> runRight(int playerIndex) => SpriteAnimation.load(
     "spritesheet.png",
     SpriteAnimationData([
       ...SpriteAnimationData.sequenced(
         amount: 3,
         stepTime: 0.1,
         textureSize: playerTextureSize,
-        texturePosition: getPlayerTexturePosition(6, 0),
+        texturePosition: getPlayerTexturePosition(6, playerIndex),
       ).frames,
       SpriteAnimationFrameData(
         srcSize: playerTextureSize,
-        srcPosition: getPlayerTexturePosition(7, 0),
+        srcPosition: getPlayerTexturePosition(7, playerIndex),
         stepTime: 0.1,
       ),
     ]),
   );
 
-  static SimpleDirectionAnimation get simpleDirectionAnimation =>
+  static Future<SpriteAnimation> dead(int playerIndex) =>
+      SpriteAnimation.load(
+        'spritesheet.png',
+        SpriteAnimationData.sequenced(
+          amount: 4,
+          stepTime: 0.2,
+          textureSize: playerTextureSize,
+          texturePosition: getPlayerTexturePosition(12, playerIndex),
+          loop: false,
+        ),
+      );
+
+  static SimpleDirectionAnimation simpleDirectionAnimation(int playerIndex) =>
       SimpleDirectionAnimation(
-        idleUp: idleUp,
-        idleDown: idleDown,
-        idleLeft: idleLeft,
-        idleRight: idleRight,
-        runUp: runUp,
-        runDown: runDown,
-        runLeft: runLeft,
-        runRight: runRight,
+        // eightDirection: true,
+        enabledFlipX: false,
+        // centerAnchor: true,
+        idleUp: idleUp(playerIndex),
+        idleDown: idleDown(playerIndex),
+        idleLeft: idleLeft(playerIndex),
+        idleRight: idleRight(playerIndex),
+        runUp: runUp(playerIndex),
+        runDown: runDown(playerIndex),
+        runLeft: runLeft(playerIndex),
+        runRight: runRight(playerIndex),
+        others: {
+          playerDead: dead(playerIndex),
+        },
       );
 }

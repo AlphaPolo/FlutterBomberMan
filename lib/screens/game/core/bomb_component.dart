@@ -27,6 +27,7 @@ class BombComponent extends GameDecorationWithCollision with Attackable {
   final Set<Component> ignoreList = {};
   final PlayerComponent? owner;
 
+  /// 先用ExplosionDirectionType來代替方向定義
   ExplosionDirectionType currentDirection = ExplosionDirectionType.cross;
 
   BombComponent._({

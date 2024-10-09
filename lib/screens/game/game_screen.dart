@@ -36,7 +36,8 @@ class _GameScreenState extends State<GameScreen> {
       const Point<int>(0, 0),
     ),
     keyConfig: context.read<SettingsProvider>().player1KeyConfig,
-    color: Colors.red,
+    playerIndex: 0,
+    // color: Colors.red,
   );
 
   late PlayerComponent secondPlayer = PlayerComponent(
@@ -44,7 +45,8 @@ class _GameScreenState extends State<GameScreen> {
       const Point<int>(14, 12),
     ),
     keyConfig: context.read<SettingsProvider>().player2KeyConfig,
-    color: Colors.blue,
+    playerIndex: 1,
+    // color: Colors.blue,
   );
 
   final ObstacleManager obstacleManager = ObstacleManager();

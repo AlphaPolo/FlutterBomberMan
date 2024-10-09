@@ -21,9 +21,7 @@ class MenuScreen extends StatelessWidget {
 
               }),
               const SizedBox(height: 16.0),
-              buildButton('連線模式', () {
-
-              }),
+              buildButton('連線模式', null),
               const SizedBox(height: 16.0),
               buildButton('設定', () {
                 Navigator.of(context).push(SettingScreen.route());
@@ -35,18 +33,18 @@ class MenuScreen extends StatelessWidget {
     );
   }
 
-  Widget buildButton(String title, VoidCallback onTap) {
+  Widget buildButton(String title, VoidCallback? onTap) {
     return InkWell(
       onTap: onTap,
       splashColor: Colors.transparent,
       splashFactory: NoSplash.splashFactory,
       child: Container(
         width: 300,
-        decoration: const ShapeDecoration(
-          shape: ContinuousRectangleBorder(
+        decoration: ShapeDecoration(
+          shape: const ContinuousRectangleBorder(
             borderRadius: BorderRadius.all(Radius.circular(24.0)),
           ),
-          color: Colors.amber,
+          color: onTap == null ? Colors.grey : Colors.amber,
         ),
         padding: const EdgeInsets.symmetric(
           horizontal: 36,
@@ -60,6 +58,13 @@ class MenuScreen extends StatelessWidget {
             fontSize: 32,
             color: Colors.white,
             fontWeight: FontWeight.w900,
+            shadows: [
+              BoxShadow(
+                blurRadius: 2,
+                spreadRadius: 3,
+                color: Colors.grey,
+              ),
+            ],
           ),
         ),
       ),
