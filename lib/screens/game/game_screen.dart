@@ -2,9 +2,11 @@ import 'dart:math';
 
 import 'package:bomber_man/providers/settings_provider.dart';
 import 'package:bomber_man/screens/game/core/bomber_man_constant.dart';
+import 'package:bomber_man/screens/game/core/bomber_man_game.dart';
 import 'package:bomber_man/screens/game/core/map_parser.dart';
 import 'package:bomber_man/screens/game/core/obstacle_manager.dart';
 import 'package:bomber_man/screens/game/core/player_component.dart';
+import 'package:bomber_man/screens/game/overlays/game_over_dialog.dart';
 import 'package:bomber_man/screens/game/utils/bomber_utils.dart';
 import 'package:bonfire/bonfire.dart';
 import 'package:flutter/material.dart';
@@ -29,7 +31,7 @@ class GameScreen extends StatefulWidget {
 
 class _GameScreenState extends State<GameScreen> {
 
-  // final BomberManGame game = BomberManGame();
+  final BomberManGame game = BomberManGame();
 
   late PlayerComponent firstPlayer = PlayerComponent(
     position: BomberUtils.getPositionCenter(
@@ -68,6 +70,7 @@ class _GameScreenState extends State<GameScreen> {
         secondPlayer,
         obstacleManager,
       ],
+      interface: game,
       playerControllers: [
         Keyboard(
           config: getKeyboardConfigFrom(firstPlayer.keyConfig),
@@ -94,6 +97,12 @@ class _GameScreenState extends State<GameScreen> {
         },
         forceTileSize: BomberManConstant.cellSize.toVector2(),
       ),
+
+      overlayBuilderMap: {
+        'GameOver': (context, gameRef) {
+          return GameOverDialog(gameRef: gameRef);
+        }
+      },
     );
   }
 

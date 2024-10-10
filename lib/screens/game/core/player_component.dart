@@ -111,12 +111,14 @@ import '../../../providers/settings_provider.dart';
 import '../../../utils/my_print.dart';
 import '../utils/player_sprite_sheet.dart';
 
-class PlayerComponent extends SimplePlayer with BlockMovementCollision  {
+class PlayerComponent extends SimplePlayer with BlockMovementCollision, Notifier {
   static const double maxSpeed = 550;
-  static const double defaultSpeed = 250;
+  static const double defaultSpeed = 150;
   late final Vector2 halfSize;
 
   final BomberManKeyConfig keyConfig;
+
+  int playerIndex;
 
   // ability
   int force = 1;
@@ -130,7 +132,7 @@ class PlayerComponent extends SimplePlayer with BlockMovementCollision  {
   PlayerComponent({
     required super.position,
     required this.keyConfig,
-    required int playerIndex,
+    required this.playerIndex,
   })
       : super(
     animation: PlayerSpriteSheet.simpleDirectionAnimation(playerIndex),
@@ -148,7 +150,14 @@ class PlayerComponent extends SimplePlayer with BlockMovementCollision  {
       size.x * anchor.x,
       size.y * anchor.y,
     );
+    // <SimpleAnimationEnum, Future<SpriteAnimation>>{
+    //   SimpleAnimationEnum.runUp : PlayerSpriteSheet.runUp(playerIndex),
+    //   SimpleAnimationEnum.runRight : PlayerSpriteSheet.runRight(playerIndex),
+    //   SimpleAnimationEnum.runDown : PlayerSpriteSheet.runDown(playerIndex),
+    //   SimpleAnimationEnum.runLeft : PlayerSpriteSheet.runLeft(playerIndex),
+    // };
 
+    // replaceAnimation(newAnimation);
     // debugMode = true;
     addAll([
       // CircleComponent.relative(
