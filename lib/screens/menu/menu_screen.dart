@@ -1,4 +1,5 @@
 import 'package:bomber_man/screens/game/game_screen.dart';
+import 'package:bomber_man/screens/lobby/lobby_screen.dart';
 import 'package:bomber_man/screens/setting/setting_screen.dart';
 import 'package:flutter/material.dart';
 
@@ -18,10 +19,11 @@ class MenuScreen extends StatelessWidget {
             children: [
               buildButton('單機多人模式', () {
                 Navigator.of(context).push(GameScreen.route());
-
               }),
               const SizedBox(height: 16.0),
-              buildButton('連線模式', null),
+              buildButton('連線模式', () {
+                Navigator.of(context).push(LobbyScreen.route());
+              }),
               const SizedBox(height: 16.0),
               buildButton('設定', () {
                 Navigator.of(context).push(SettingScreen.route());
