@@ -22,12 +22,12 @@ class RemoteManager extends GameComponent {
   void update(double dt) {
     super.update(dt);
 
-    // scanPositions(dt);
+    scanPositions(dt);
   }
 
   void scanPositions(double dt) {
-    // const interval = 16*2;
-    const interval = 1000;
+    const interval = 16*2;
+    // const interval = 1000;
 
     if(checkInterval('updatePositions', interval, dt)) {
       final query = gameRef.query<PlayerComponent>();
@@ -36,7 +36,7 @@ class RemoteManager extends GameComponent {
           PlayerPositionData(
             playerIndex: player.playerIndex,
             newPosition: player.position.toOffset(),
-            // currentAnimation: player.animation?.currentType ?? player.animation?.lastPlayedAnimation ?? SimpleAnimationEnum.idleDown,
+            currentAnimation: player.animation?.currentType ?? player.animation?.lastPlayedAnimation ?? SimpleAnimationEnum.idleDown,
           ),
       ]);
     }

@@ -1,7 +1,7 @@
 import 'dart:math';
 
 import 'package:bomber_man/screens/game/core/player_component.dart';
-import 'package:bomber_man/screens/game/core/remote_player_component.dart';
+import 'package:bomber_man/screens/online_game/core/remote_player_component.dart';
 import 'package:bomber_man/screens/game/utils/bomber_utils.dart';
 import 'package:bomber_man/utils/my_print.dart';
 import 'package:bonfire/bonfire.dart';
@@ -9,7 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:peerdart/peerdart.dart';
 import 'package:provider/provider.dart';
 
-import '../screens/game/multi_game_screen.dart';
+import '../screens/online_game/multi_game_screen.dart';
 import 'settings_provider.dart';
 
 class PeerProvider extends ChangeNotifier {
@@ -82,6 +82,17 @@ class PeerProvider extends ChangeNotifier {
         if(!context.mounted) return;
 
         myPrint('host receive data: $data');
+
+        switch(PeerMessage.parse(data)) {
+          case GameInitMessage(:final gameId, :final initialMap):
+            myPrint('GameInitMessageEvent: $gameId, $initialMap');
+            _onPlay(context, initialMap);
+        // case GameUpdateMessage(:final timestamp, :final data):
+          case GameUpdateMessage gameUpdateMessage:
+            _callback?.call(gameUpdateMessage);
+          case _:
+        }
+
         // ScaffoldMessenger.of(context)
         //     .showSnackBar(SnackBar(content: Text(data)));
       });
@@ -203,7 +214,7 @@ class PeerProvider extends ChangeNotifier {
 
 
   void send(dynamic data) {
-    _conn.send( data);
+    _conn.send(data);
   }
 
   void setOnGameUpdateListener(void Function(GameUpdateMessage) callback) {
@@ -316,14 +327,14 @@ class PlayerPositionData extends GameEventData {
 
   final int playerIndex;
   final Offset newPosition;
-  // final SimpleAnimationEnum currentAnimation;
+  final SimpleAnimationEnum currentAnimation;
 
 
 
   const PlayerPositionData({
     required this.playerIndex,
     required this.newPosition,
-    // required this.currentAnimation,
+    required this.currentAnimation,
   });
 
   factory PlayerPositionData.fromJson(Map<String, dynamic> json) {
@@ -333,7 +344,7 @@ class PlayerPositionData extends GameEventData {
         json['newPosition']['x'],
         json['newPosition']['y'],
       ),
-      // currentAnimation: SimpleAnimationEnum.values[json['currentAnimation']],
+      currentAnimation: SimpleAnimationEnum.values[json['currentAnimation']],
     );
   }
 
@@ -346,7 +357,7 @@ class PlayerPositionData extends GameEventData {
         'x': newPosition.dx,
         'y': newPosition.dy,
       },
-      // 'currentAnimation': currentAnimation.index,
+      'currentAnimation': currentAnimation.index,
     };
   }
 }

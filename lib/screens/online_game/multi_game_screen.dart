@@ -8,7 +8,7 @@ import 'package:bomber_man/screens/game/core/map_parser.dart';
 import 'package:bomber_man/screens/game/core/obstacle_manager.dart';
 import 'package:bomber_man/screens/game/core/player_component.dart';
 import 'package:bomber_man/screens/game/core/remote_manager.dart';
-import 'package:bomber_man/screens/game/core/remote_player_component.dart';
+import 'package:bomber_man/screens/online_game/core/remote_player_component.dart';
 import 'package:bomber_man/screens/game/overlays/game_over_dialog.dart';
 import 'package:bomber_man/utils/my_print.dart';
 import 'package:bonfire/bonfire.dart';
@@ -85,11 +85,13 @@ class _MultiGameScreenState extends State<MultiGameScreen> {
           for(final eventData in message.data) {
             // myPrint('gameUpdate $eventData');
 
-            if(eventData case PlayerPositionData(:final playerIndex, :final newPosition)) {
+            if(eventData case PlayerPositionData(:final playerIndex)) {
 
-              final playerComponent = players.firstWhereOrNull((player) => player.playerIndex == playerIndex);
-              playerComponent?.position = newPosition.toVector2();
-              myPrint('player: ${playerComponent?.position}');
+              final playerComponent = players
+                  .whereType<RemotePlayerComponent>()
+                  .firstWhereOrNull((player) => player.playerIndex == playerIndex);
+              playerComponent?.onRemoteUpdatePosition(eventData);
+              // myPrint('player: ${playerComponent?.position}');
             }
           }
         },
@@ -109,13 +111,13 @@ class _MultiGameScreenState extends State<MultiGameScreen> {
         initialMapZoomFit: InitialMapZoomFitEnum.none,
         resolution: BomberManConstant.gameSize,
       ),
-      player: firstPlayer,
       components: [
+        firstPlayer,
         secondPlayer,
         obstacleManager,
         remoteManager,
       ],
-      interface: game,
+      // interface: game,
       playerControllers: [
         Keyboard(
           config: getKeyboardConfigFrom(controlPlayer.keyConfig),
