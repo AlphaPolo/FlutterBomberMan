@@ -3,8 +3,6 @@ import 'package:bonfire/bonfire.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 
-import '../core/player_component.dart';
-
 class GameOverDialog extends StatelessWidget {
   final BonfireGameInterface gameRef;
 

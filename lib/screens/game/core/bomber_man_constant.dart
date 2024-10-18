@@ -4,12 +4,16 @@ class BomberManConstant {
 
   const BomberManConstant._();
 
+  static const double maxSpeed = 550;
+  static const double defaultSpeed = 150;
+
   static const double width = 960;
   static const double height = 832;
   static const double cellSide = 64;
 
   static const Size gameContentSize = Size(width, height);
   static const Size cellSize = Size(cellSide, cellSide);
+  static final Vector2 playerSize = Vector2(52, 78);
   static final Vector2 bombSize = Vector2.all(52);
   static final Vector2 explodeSize = Vector2.all(48);
 

@@ -2,6 +2,7 @@ import 'package:bomber_man/extensions/iterable_extension.dart';
 import 'package:bomber_man/screens/game/utils/player_sprite_sheet.dart';
 import 'package:bonfire/bonfire.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:provider/provider.dart';
 
@@ -31,7 +32,16 @@ class HostPartScreen extends StatelessWidget {
             Selector<PeerProvider, String>(
               selector: (context, provider) => provider.peerId ?? '準備中...',
               builder: (context, peerId, _) {
-                return SelectableText('ID: $peerId');
+                return Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    SelectableText('ID: $peerId'),
+                    IconButton(
+                      onPressed: () => Clipboard.setData(ClipboardData(text: peerId)),
+                      icon: const Icon(Icons.copy),
+                    ),
+                  ],
+                );
               },
             ),
             buildGuestRow(),
@@ -76,7 +86,11 @@ class HostPartScreen extends StatelessWidget {
             ),
             if(canPlay)
             ElevatedButton(
-              onPressed: () => Navigator.of(context).maybePop(),
+              onPressed: () {
+                context.read<PeerProvider>().play(context);
+
+
+              },
               child: const Text('Play'),
             ),
           ].joinElement(const SizedBox(width: 16.0)),

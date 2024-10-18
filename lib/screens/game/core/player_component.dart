@@ -112,9 +112,9 @@ import '../../../utils/my_print.dart';
 import '../utils/player_sprite_sheet.dart';
 
 class PlayerComponent extends SimplePlayer with BlockMovementCollision, Notifier {
-  static const double maxSpeed = 550;
-  static const double defaultSpeed = 150;
-  late final Vector2 halfSize;
+  static const double maxSpeed = BomberManConstant.maxSpeed;
+  static const double defaultSpeed = BomberManConstant.defaultSpeed;
+  final Vector2 halfSize = Vector2.zero();
 
   final BomberManKeyConfig keyConfig;
 
@@ -126,17 +126,13 @@ class PlayerComponent extends SimplePlayer with BlockMovementCollision, Notifier
   bool actionKick = false;
   bool actionThrow = false;
 
-
-
-
   PlayerComponent({
     required super.position,
     required this.keyConfig,
     required this.playerIndex,
-  })
-      : super(
+  }) : super(
     animation: PlayerSpriteSheet.simpleDirectionAnimation(playerIndex),
-    size: Vector2(52, 78),
+    size: BomberManConstant.playerSize,
     speed: defaultSpeed,
     initDirection: Direction.down,
   ) {
@@ -160,13 +156,6 @@ class PlayerComponent extends SimplePlayer with BlockMovementCollision, Notifier
     // replaceAnimation(newAnimation);
     // debugMode = true;
     addAll([
-      // CircleComponent.relative(
-      //   1,
-      //   // Vector2.all(1),
-      //   parentSize: size,
-      //   paint: Paint()..color = color,
-      //   // anchor: Anchor.center,
-      // ),
       CircleHitbox(
         position: hitBoxPosition,
         anchor: Anchor.center,
@@ -176,7 +165,7 @@ class PlayerComponent extends SimplePlayer with BlockMovementCollision, Notifier
       ),
     ]);
 
-    halfSize = Vector2.all(26);
+    halfSize.setAll(26);
     return super.onLoad();
   }
 
@@ -238,6 +227,17 @@ class PlayerComponent extends SimplePlayer with BlockMovementCollision, Notifier
     super.update(dt);
     checkOutOfBounds();
   }
+
+  // @override
+  // void onJoystickChangeDirectional(JoystickDirectionalEvent event) {
+  //   if (isMounted && _joystickDirectional.name != event.directional.name) {
+  //     _joystickDirectional = event.directional;
+  //     myPrint(_joystickDirectional.name);
+  //   }
+  //
+  //   // comments this part to not move the player
+  //   super.onJoystickChangeDirectional(event);
+  // }
 
   @override
   void onJoystickAction(JoystickActionEvent event) {

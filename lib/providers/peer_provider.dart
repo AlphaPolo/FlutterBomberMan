@@ -1,6 +1,16 @@
+import 'dart:math';
+
+import 'package:bomber_man/screens/game/core/player_component.dart';
+import 'package:bomber_man/screens/game/core/remote_player_component.dart';
+import 'package:bomber_man/screens/game/utils/bomber_utils.dart';
 import 'package:bomber_man/utils/my_print.dart';
+import 'package:bonfire/bonfire.dart';
 import 'package:flutter/material.dart';
 import 'package:peerdart/peerdart.dart';
+import 'package:provider/provider.dart';
+
+import '../screens/game/multi_game_screen.dart';
+import 'settings_provider.dart';
 
 class PeerProvider extends ChangeNotifier {
 
@@ -21,6 +31,8 @@ class PeerProvider extends ChangeNotifier {
 
 
   final Set<String> _connections = {};
+
+  void Function(GameUpdateMessage message)? _callback;
 
   int get connections => _connections.length;
 
@@ -48,6 +60,7 @@ class PeerProvider extends ChangeNotifier {
   @override
   void dispose() {
     // _peer.close();
+    _callback = null;
     _peer.dispose();
     super.dispose();
   }
@@ -69,8 +82,8 @@ class PeerProvider extends ChangeNotifier {
         if(!context.mounted) return;
 
         myPrint('host receive data: $data');
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text(data)));
+        // ScaffoldMessenger.of(context)
+        //     .showSnackBar(SnackBar(content: Text(data)));
       });
 
       _conn.on("binary").listen((data) {
@@ -103,8 +116,20 @@ class PeerProvider extends ChangeNotifier {
 
       connection.on("data").listen((data) {
         if(!context.mounted) return;
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text(data)));
+        myPrint('Guest onData: $data');
+
+        switch(PeerMessage.parse(data)) {
+          case GameInitMessage(:final gameId, :final initialMap):
+            myPrint('GameInitMessageEvent: $gameId, $initialMap');
+            _onPlay(context, initialMap);
+          // case GameUpdateMessage(:final timestamp, :final data):
+          case GameUpdateMessage gameUpdateMessage:
+            _callback?.call(gameUpdateMessage);
+          case _:
+        }
+
+        // ScaffoldMessenger.of(context)
+        //     .showSnackBar(SnackBar(content: Text(data)));
       });
 
       connection.on("binary").listen((data) {
@@ -114,6 +139,77 @@ class PeerProvider extends ChangeNotifier {
       });
     });
   }
+
+  /// host function
+  /// FIXME: _conn need to be array
+  void play(BuildContext context) async {
+    const initialMap = 'village_10.json';
+    await _conn.send(
+      const GameInitMessage(
+        gameId: 1,
+        initialMap: initialMap,
+      ),
+    );
+
+    if(!context.mounted) return;
+
+    Navigator.of(context).push(
+      MultiGameScreen.route(
+        firstPlayer: PlayerComponent(
+          position: BomberUtils.getPositionCenter(
+            const Point<int>(0, 0),
+          ),
+          keyConfig: context.read<SettingsProvider>().player1KeyConfig,
+          playerIndex: 0,
+          // color: Colors.red,
+        ),
+        secondPlayer: RemotePlayerComponent(
+          position: BomberUtils.getPositionCenter(
+            const Point<int>(14, 12),
+          ),
+          playerIndex: 1,
+          // connection: _conn,
+        ),
+        map: initialMap,
+        provider: this,
+      ),
+    );
+  }
+
+  void _onPlay(BuildContext context, String initialMap) async {
+    if(!context.mounted) return;
+
+    Navigator.of(context).push(
+      MultiGameScreen.route(
+        firstPlayer: RemotePlayerComponent(
+          position: BomberUtils.getPositionCenter(
+            const Point<int>(0, 0),
+          ),
+          playerIndex: 0,
+          // color: Colors.red,
+        ),
+        secondPlayer: PlayerComponent(
+          position: BomberUtils.getPositionCenter(
+            const Point<int>(14, 12),
+          ),
+          keyConfig: context.read<SettingsProvider>().player1KeyConfig,
+          playerIndex: 1,
+        ),
+        map: initialMap,
+        provider: this,
+      ),
+    );
+  }
+
+
+  void send(dynamic data) {
+    _conn.send( data);
+  }
+
+  void setOnGameUpdateListener(void Function(GameUpdateMessage) callback) {
+    _callback = callback;
+  }
+
 }
 
 
@@ -121,8 +217,12 @@ sealed class PeerMessage {
   const PeerMessage();
 
 
-  factory PeerMessage.parse() {
-    return GameInitMessage.fromJson({});
+  factory PeerMessage.parse(Map<String, dynamic> data) {
+    return switch(data['type']) {
+      GameInitMessage.type => GameInitMessage.fromJson(data),
+      GameUpdateMessage.type => GameUpdateMessage.fromJson(data),
+      _ => throw 'Error PeerMessage',
+    };
   }
 }
 
@@ -138,10 +238,18 @@ class GameInitMessage extends PeerMessage {
   });
 
   factory GameInitMessage.fromJson(Map<String, dynamic> json) {
-    return const GameInitMessage(
-      gameId: 1,
-      initialMap: 'village_10.map',
+    return GameInitMessage(
+      gameId: json['gameId'],
+      initialMap: json['initialMap'],
     );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'type': type,
+      'gameId': gameId,
+      'initialMap': initialMap,
+    };
   }
 }
 
@@ -163,18 +271,27 @@ class GameUpdateMessage extends PeerMessage {
   static const String type = 'GameUpdate';
 
   final int timestamp;
+  final List<GameEventData> data;
 
   const GameUpdateMessage({
     required this.timestamp,
+    required this.data,
   });
 
   factory GameUpdateMessage.fromJson(Map<String, dynamic> json) {
     return GameUpdateMessage(
       timestamp: json['timestamp'],
+      data: (json['data'] as List).map((e) => GameEventData.parse(e)).toList(),
     );
   }
 
-
+  Map<String, dynamic> toJson() {
+    return {
+      'type': type,
+      'timestamp': timestamp,
+      'data': data.map((e) => e.toJson()).toList(),
+    };
+  }
 }
 
 
@@ -183,6 +300,14 @@ class GameUpdateMessage extends PeerMessage {
 sealed class GameEventData {
   const GameEventData();
 
+  factory GameEventData.parse(Map<String, dynamic> json) {
+    return switch(json['tag']) {
+      PlayerPositionData.tag => PlayerPositionData.fromJson(json),
+      _ => throw 'GameEventData error',
+    };
+  }
+
+  Map<String, dynamic> toJson();
 }
 
 class PlayerPositionData extends GameEventData {
@@ -191,12 +316,14 @@ class PlayerPositionData extends GameEventData {
 
   final int playerIndex;
   final Offset newPosition;
+  // final SimpleAnimationEnum currentAnimation;
 
 
 
   const PlayerPositionData({
     required this.playerIndex,
     required this.newPosition,
+    // required this.currentAnimation,
   });
 
   factory PlayerPositionData.fromJson(Map<String, dynamic> json) {
@@ -206,16 +333,20 @@ class PlayerPositionData extends GameEventData {
         json['newPosition']['x'],
         json['newPosition']['y'],
       ),
+      // currentAnimation: SimpleAnimationEnum.values[json['currentAnimation']],
     );
   }
 
+  @override
   Map<String, dynamic> toJson() {
     return {
+      'tag': tag,
       'playerIndex': playerIndex,
       'newPosition': {
         'x': newPosition.dx,
         'y': newPosition.dy,
       },
+      // 'currentAnimation': currentAnimation.index,
     };
   }
 }

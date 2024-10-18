@@ -72,6 +72,11 @@ class BomberManKeyConfig {
     });
   }
 
+  /// empty config
+  factory BomberManKeyConfig.empty() {
+    return const BomberManKeyConfig._({});
+  }
+
   factory BomberManKeyConfig.custom({
     required LogicalKeyboardKey keyUp,
     required LogicalKeyboardKey keyRight,
