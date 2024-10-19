@@ -105,20 +105,23 @@ import 'package:bomber_man/screens/game/core/bomb_component.dart';
 import 'package:bomber_man/screens/game/core/bomber_man_constant.dart';
 import 'package:bomber_man/screens/game/utils/blink_effect.dart';
 import 'package:bomber_man/screens/game/utils/bomber_utils.dart';
+import 'package:bomber_man/screens/game/core/remote_player_component.dart';
 import 'package:bonfire/bonfire.dart';
 
 import '../../../providers/settings_provider.dart';
 import '../../../utils/my_print.dart';
 import '../utils/player_sprite_sheet.dart';
 
-class PlayerComponent extends SimplePlayer with BlockMovementCollision, Notifier {
+class PlayerComponent extends SimplePlayer with BlockMovementCollision, RemoteMixin, Notifier {
   static const double maxSpeed = BomberManConstant.maxSpeed;
   static const double defaultSpeed = BomberManConstant.defaultSpeed;
   final Vector2 halfSize = Vector2.zero();
 
   final BomberManKeyConfig keyConfig;
 
-  int playerIndex;
+  @override
+  final bool isHost;
+  final int playerIndex;
 
   // ability
   int force = 1;
@@ -126,10 +129,15 @@ class PlayerComponent extends SimplePlayer with BlockMovementCollision, Notifier
   bool actionKick = false;
   bool actionThrow = false;
 
+
+  /// for client network
+  bool triggerBomb = false;
+
   PlayerComponent({
     required super.position,
     required this.keyConfig,
     required this.playerIndex,
+    this.isHost = true,
   }) : super(
     animation: PlayerSpriteSheet.simpleDirectionAnimation(playerIndex),
     size: BomberManConstant.playerSize,
@@ -260,6 +268,11 @@ class PlayerComponent extends SimplePlayer with BlockMovementCollision, Notifier
   }
 
   void placeBomb() {
+    if(!isHost) {
+      triggerBomb = true;
+      return;
+    }
+
     final coordinate = BomberUtils.getCoordinate(position);
 
     if(alreadyOverBombCapacity()) {
@@ -274,7 +287,7 @@ class PlayerComponent extends SimplePlayer with BlockMovementCollision, Notifier
 
     gameRef.add(
       BombComponent.create(
-        this,
+        playerIndex,
         coordinate,
         BombConfigData(force),
       ),
@@ -290,7 +303,7 @@ class PlayerComponent extends SimplePlayer with BlockMovementCollision, Notifier
 
   bool alreadyOverBombCapacity() {
     return gameRef.query<BombComponent>()
-        .where((bomb) => bomb.owner == this)
+        .where((bomb) => bomb.ownerPlayerIndex == playerIndex)
         .length >= bombCapacity;
   }
 
@@ -331,6 +344,15 @@ class PlayerComponent extends SimplePlayer with BlockMovementCollision, Notifier
 
     removeFromParent();
     myPrint('player onDie');
+  }
+
+  bool consumeBombTrigger() {
+    if(triggerBomb) {
+      myPrint('consume');
+      triggerBomb = false;
+      return true;
+    }
+    return false;
   }
 
 

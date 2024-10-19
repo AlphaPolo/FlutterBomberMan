@@ -1,15 +1,15 @@
 import 'dart:math';
 
 import 'package:bomber_man/screens/game/core/player_component.dart';
-import 'package:bomber_man/screens/online_game/core/remote_player_component.dart';
+import 'package:bomber_man/screens/game/core/remote_player_component.dart';
 import 'package:bomber_man/screens/game/utils/bomber_utils.dart';
 import 'package:bomber_man/utils/my_print.dart';
-import 'package:bonfire/bonfire.dart';
 import 'package:flutter/material.dart';
 import 'package:peerdart/peerdart.dart';
 import 'package:provider/provider.dart';
 
-import '../screens/online_game/multi_game_screen.dart';
+import '../screens/game/multi_game_screen.dart';
+import '../screens/game/network_event/network_event.dart';
 import 'settings_provider.dart';
 
 class PeerProvider extends ChangeNotifier {
@@ -127,13 +127,13 @@ class PeerProvider extends ChangeNotifier {
 
       connection.on("data").listen((data) {
         if(!context.mounted) return;
-        myPrint('Guest onData: $data');
+        // myPrint('Guest onData: $data');
 
         switch(PeerMessage.parse(data)) {
           case GameInitMessage(:final gameId, :final initialMap):
             myPrint('GameInitMessageEvent: $gameId, $initialMap');
             _onPlay(context, initialMap);
-          // case GameUpdateMessage(:final timestamp, :final data):
+        // case GameUpdateMessage(:final timestamp, :final data):
           case GameUpdateMessage gameUpdateMessage:
             _callback?.call(gameUpdateMessage);
           case _:
@@ -172,17 +172,18 @@ class PeerProvider extends ChangeNotifier {
           ),
           keyConfig: context.read<SettingsProvider>().player1KeyConfig,
           playerIndex: 0,
-          // color: Colors.red,
+          isHost: true,
         ),
         secondPlayer: RemotePlayerComponent(
           position: BomberUtils.getPositionCenter(
             const Point<int>(14, 12),
           ),
           playerIndex: 1,
-          // connection: _conn,
+          isHost: true,
         ),
         map: initialMap,
         provider: this,
+        isHost: true,
       ),
     );
   }
@@ -197,7 +198,7 @@ class PeerProvider extends ChangeNotifier {
             const Point<int>(0, 0),
           ),
           playerIndex: 0,
-          // color: Colors.red,
+          isHost: false,
         ),
         secondPlayer: PlayerComponent(
           position: BomberUtils.getPositionCenter(
@@ -205,9 +206,11 @@ class PeerProvider extends ChangeNotifier {
           ),
           keyConfig: context.read<SettingsProvider>().player1KeyConfig,
           playerIndex: 1,
+          isHost: false,
         ),
         map: initialMap,
         provider: this,
+        isHost: false,
       ),
     );
   }
@@ -217,149 +220,13 @@ class PeerProvider extends ChangeNotifier {
     _conn.send(data);
   }
 
-  void setOnGameUpdateListener(void Function(GameUpdateMessage) callback) {
+  void setOnGameUpdateListener(void Function(GameUpdateMessage)? callback) {
     _callback = callback;
   }
 
 }
 
 
-sealed class PeerMessage {
-  const PeerMessage();
 
-
-  factory PeerMessage.parse(Map<String, dynamic> data) {
-    return switch(data['type']) {
-      GameInitMessage.type => GameInitMessage.fromJson(data),
-      GameUpdateMessage.type => GameUpdateMessage.fromJson(data),
-      _ => throw 'Error PeerMessage',
-    };
-  }
-}
-
-class GameInitMessage extends PeerMessage {
-  static const String type = 'GameInit';
-
-  final int gameId;
-  final String initialMap;
-
-  const GameInitMessage({
-    required this.gameId,
-    required this.initialMap,
-  });
-
-  factory GameInitMessage.fromJson(Map<String, dynamic> json) {
-    return GameInitMessage(
-      gameId: json['gameId'],
-      initialMap: json['initialMap'],
-    );
-  }
-
-  Map<String, dynamic> toJson() {
-    return {
-      'type': type,
-      'gameId': gameId,
-      'initialMap': initialMap,
-    };
-  }
-}
-
-/// Host Receive Guest Message
-class GamePreparedMessage extends PeerMessage {
-  static const String type = 'GamePrepared';
-
-  const GamePreparedMessage();
-}
-
-/// GameStart
-class GameStartMessage extends PeerMessage {
-  static const String type = 'GameStart';
-
-  const GameStartMessage();
-}
-
-class GameUpdateMessage extends PeerMessage {
-  static const String type = 'GameUpdate';
-
-  final int timestamp;
-  final List<GameEventData> data;
-
-  const GameUpdateMessage({
-    required this.timestamp,
-    required this.data,
-  });
-
-  factory GameUpdateMessage.fromJson(Map<String, dynamic> json) {
-    return GameUpdateMessage(
-      timestamp: json['timestamp'],
-      data: (json['data'] as List).map((e) => GameEventData.parse(e)).toList(),
-    );
-  }
-
-  Map<String, dynamic> toJson() {
-    return {
-      'type': type,
-      'timestamp': timestamp,
-      'data': data.map((e) => e.toJson()).toList(),
-    };
-  }
-}
-
-
-
-
-sealed class GameEventData {
-  const GameEventData();
-
-  factory GameEventData.parse(Map<String, dynamic> json) {
-    return switch(json['tag']) {
-      PlayerPositionData.tag => PlayerPositionData.fromJson(json),
-      _ => throw 'GameEventData error',
-    };
-  }
-
-  Map<String, dynamic> toJson();
-}
-
-class PlayerPositionData extends GameEventData {
-
-  static const String tag = 'PlayerMove';
-
-  final int playerIndex;
-  final Offset newPosition;
-  final SimpleAnimationEnum currentAnimation;
-
-
-
-  const PlayerPositionData({
-    required this.playerIndex,
-    required this.newPosition,
-    required this.currentAnimation,
-  });
-
-  factory PlayerPositionData.fromJson(Map<String, dynamic> json) {
-    return PlayerPositionData(
-      playerIndex: json['playerIndex'],
-      newPosition: Offset(
-        json['newPosition']['x'],
-        json['newPosition']['y'],
-      ),
-      currentAnimation: SimpleAnimationEnum.values[json['currentAnimation']],
-    );
-  }
-
-  @override
-  Map<String, dynamic> toJson() {
-    return {
-      'tag': tag,
-      'playerIndex': playerIndex,
-      'newPosition': {
-        'x': newPosition.dx,
-        'y': newPosition.dy,
-      },
-      'currentAnimation': currentAnimation.index,
-    };
-  }
-}
 
 

@@ -5,6 +5,7 @@ import 'package:bomber_man/screens/game/core/bomber_man_constant.dart';
 import 'package:bomber_man/screens/game/core/map_parser.dart';
 import 'package:bomber_man/screens/game/core/obstacle_manager.dart';
 import 'package:bomber_man/screens/game/core/player_component.dart';
+import 'package:bomber_man/screens/game/core/remote_player_component.dart';
 import 'package:bomber_man/screens/game/utils/bomber_utils.dart';
 import 'package:bomber_man/screens/game/utils/object_sprite_sheet.dart';
 import 'package:bonfire/bonfire.dart';
@@ -19,37 +20,44 @@ class BombConfigData {
   const BombConfigData(this.force);
 }
 
-class BombComponent extends GameDecorationWithCollision with Attackable {
+class BombComponent extends GameDecorationWithCollision with Attackable, RemoteMixin {
 
   static const lifeTime = 2.5;
 
+  @override
+  final bool isHost;
+
   final BombConfigData configData;
   final Set<Component> ignoreList = {};
-  final PlayerComponent? owner;
+  final int? ownerPlayerIndex;
 
   /// 先用ExplosionDirectionType來代替方向定義
   ExplosionDirectionType currentDirection = ExplosionDirectionType.cross;
 
+
   BombComponent._({
-    required this.owner,
+    required this.ownerPlayerIndex,
     required this.configData,
     required super.position,
     required super.size,
+    required this.isHost,
   });
 
   factory BombComponent.create(
-    PlayerComponent? owner,
+    int? ownerPlayerIndex,
     Point<int> coordinate,
     BombConfigData configData,
+    [bool isHost = true]
   ) {
    return BombComponent._(
-      owner: owner,
+      ownerPlayerIndex: ownerPlayerIndex,
       configData: configData,
       position: Vector2(
         BomberManConstant.cellSize.width * (coordinate.x + 0.5),
         BomberManConstant.cellSize.height * (coordinate.y + 0.5),
       ),
       size: BomberManConstant.bombSize,
+      isHost: isHost,
     );
   }
 
