@@ -317,8 +317,7 @@ class PlayerComponent extends SimplePlayer with BlockMovementCollision, RemoteMi
 
   bool alreadyHasBomb(Point<int> coordinate) {
     return gameRef.query<BombComponent>()
-        .map((bomb) => BomberUtils.getCoordinate(bomb.position))
-        .any((position) => position == coordinate);
+        .any((bomb) => BomberUtils.getCoordinate(bomb.position) == coordinate);
   }
 
   @override

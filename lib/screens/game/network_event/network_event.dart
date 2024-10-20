@@ -72,7 +72,10 @@ class GameUpdateMessage extends PeerMessage {
   factory GameUpdateMessage.fromJson(Map<String, dynamic> json) {
     return GameUpdateMessage(
       timestamp: json['timestamp'],
-      data: (json['data'] as List).map((e) => GameEventData.parse(e)).toList(),
+      data: [
+        for(final e in (json['data'] as List))
+          GameEventData.parse(e),
+      ],
     );
   }
 
@@ -80,7 +83,10 @@ class GameUpdateMessage extends PeerMessage {
     return {
       'type': type,
       'timestamp': timestamp,
-      'data': data.map((e) => e.toJson()).toList(),
+      'data': [
+        for(final e in data)
+          e.toJson(),
+      ],
     };
   }
 }
@@ -199,12 +205,14 @@ class RemoveBombEvent extends GameEventData {
   factory RemoveBombEvent.fromJson(Map<String, dynamic> json) {
     return RemoveBombEvent(
       bombId: json['bombId'],
-      explosionData: (json['explosionData'] as List<dynamic>).map((data) {
-        final directionType = ExplosionDirectionType.values[data['explosionDirectionType']];
-        final coordinate = Point<int>(data['coordinate']['x'], data['coordinate']['y']);
-        final isEdge = data['isEdge'] as bool;
-        return (directionType, coordinate, isEdge);
-      }).toList(),
+      explosionData: [
+        for(final data in json['explosionData'] as List)
+          (
+            ExplosionDirectionType.values[data['explosionDirectionType']],
+            Point<int>(data['coordinate']['x'], data['coordinate']['y']),
+            data['isEdge'],
+          ),
+      ],
     );
   }
 
@@ -213,16 +221,17 @@ class RemoveBombEvent extends GameEventData {
     return {
       'tag': tag,
       'bombId': bombId,
-      'explosionData': explosionData.map((data) {
-        return {
-          'explosionDirectionType': data.$1.index,
-          'coordinate': {
-            'x': data.$2.x,
-            'y': data.$2.y,
+      'explosionData': [
+        for(final data in explosionData)
+          {
+            'explosionDirectionType': data.$1.index,
+            'coordinate': {
+              'x': data.$2.x,
+              'y': data.$2.y,
+            },
+            'isEdge': data.$3,
           },
-          'isEdge': data.$3,
-        };
-      }).toList(),
+      ],
     };
   }
 
