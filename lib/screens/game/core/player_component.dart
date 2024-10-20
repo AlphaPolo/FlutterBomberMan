@@ -213,22 +213,13 @@ class PlayerComponent extends SimplePlayer with BlockMovementCollision, RemoteMi
       myPrint(bomb.currentDirection);
       if(bomb.ignoreList.contains(this)) return;
       if(bomb.currentDirection != ExplosionDirectionType.cross) return;
-      myPrint('pass');
       final currentPosition = BomberUtils.getCoordinate(position);
       final bombPosition = BomberUtils.getCoordinate(other.position);
-      switch(bombPosition - currentPosition) {
-        /// up
-        case Point<int>(x:0, y:-1):
-          other.applyKickForce(ExplosionDirectionType.up);
-        /// down
-        case Point<int>(x:0, y:1):
-          other.applyKickForce(ExplosionDirectionType.down);
-        /// left
-        case Point<int>(x:-1, y:0):
-          other.applyKickForce(ExplosionDirectionType.left);
-        /// right
-        case Point<int>(x:1, y:0):
-          other.applyKickForce(ExplosionDirectionType.right);
+      switch(ExplosionDirectionType.getDirectionFromPointStrict(bombPosition - currentPosition)) {
+        case final direction? when direction != ExplosionDirectionType.cross:
+          other.applyKickForce(direction);
+        case _:
+          myPrint('invalid kick direction');
       }
     }
   }

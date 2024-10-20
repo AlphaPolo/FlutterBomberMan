@@ -37,6 +37,12 @@ class BombComponent extends GameDecorationWithCollision with Attackable, RemoteM
   /// 先用ExplosionDirectionType來代替方向定義
   ExplosionDirectionType currentDirection = ExplosionDirectionType.cross;
 
+  /// 如果停止後跑這個 timer，如果正在 running 不可再次被踢
+  Timer stopCD = Timer(
+    0.2,
+    autoStart: false,
+  );
+
 
   BombComponent._({
     this.bombId,
@@ -58,10 +64,7 @@ class BombComponent extends GameDecorationWithCollision with Attackable, RemoteM
       bombId: bombId,
       ownerPlayerIndex: ownerPlayerIndex,
       configData: configData,
-      position: Vector2(
-        BomberManConstant.cellSize.width * (coordinate.x + 0.5),
-        BomberManConstant.cellSize.height * (coordinate.y + 0.5),
-      ),
+      position: BomberUtils.getPositionCenter(coordinate),
       size: BomberManConstant.bombSize,
       isHost: isHost,
     );
@@ -70,6 +73,7 @@ class BombComponent extends GameDecorationWithCollision with Attackable, RemoteM
   @override
   void update(double dt) {
     super.update(dt);
+    stopCD.update(dt);
 
     if(currentDirection != ExplosionDirectionType.cross) {
       final oldCell = BomberUtils.getCoordinate(position);
@@ -78,12 +82,17 @@ class BombComponent extends GameDecorationWithCollision with Attackable, RemoteM
 
       final nextCellPosition = position + directionForce.scaled(BomberManConstant.cellSide);
       final nextCell = BomberUtils.getCoordinate(nextCellPosition);
-      if (oldCell.distanceTo(nextCell) == 1 && checkIsHitEnvironment(nextCell)) {
-        currentDirection = ExplosionDirectionType.cross;
-        position = BomberUtils.getPositionCenter(oldCell);
+      if (oldCell.distanceTo(nextCell) == 1 && (checkHasPlayer(nextCell) || checkIsHitEnvironment(nextCell))) {
+        stopSliding(oldCell);
       }
     }
 
+  }
+
+  void stopSliding(Point<int> stopCoordinate) {
+    currentDirection = ExplosionDirectionType.cross;
+    position = BomberUtils.getPositionCenter(stopCoordinate);
+    stopCD.start();
   }
 
   @override
@@ -151,8 +160,17 @@ class BombComponent extends GameDecorationWithCollision with Attackable, RemoteM
       return;
     }
 
-    currentDirection = ExplosionDirectionType.cross;
-    position = BomberUtils.getPositionCenter(BomberUtils.getCoordinate(position));
+    if (other is PlayerComponent) {
+      return;
+      // final currentPosition = BomberUtils.getCoordinate(position);
+      // final playerPosition = BomberUtils.getCoordinate(other.position);
+      // switch(ExplosionDirectionType.getDirectionFromPoint(currentPosition - playerPosition)) {
+      //   case final direction? when direction == currentDirection:
+      //     return;
+      //   case _:
+      // }
+    }
+    stopSliding(BomberUtils.getCoordinate(position));
   }
 
   @override
@@ -195,6 +213,12 @@ class BombComponent extends GameDecorationWithCollision with Attackable, RemoteM
         .where((player) => BomberUtils.getCoordinate(player.position) == explosionPosition)
         .forEach((player) => player.handleAttack(AttackOriginEnum.WORLD, 1000, this));
   }
+
+  bool checkHasPlayer(Point<int> nextCell) {
+    return gameRef.query<PlayerComponent>()
+        .any((player) => BomberUtils.getCoordinate(player.position) == nextCell);
+  }
+
 
   void checkHitBombs(Point<int> currentPosition) {
     gameRef.query<BombComponent>()
@@ -271,6 +295,10 @@ class BombComponent extends GameDecorationWithCollision with Attackable, RemoteM
   }
 
   void applyKickForce(ExplosionDirectionType direction) {
+    if(stopCD.isRunning()) {
+      return;
+    }
+
     currentDirection = direction;
     myPrint('currentDirection: $currentDirection');
   }
@@ -302,6 +330,28 @@ enum ExplosionDirectionType {
 
   final Point<int> _nextPoint;
   final double angle;
+
+  static ExplosionDirectionType? getDirectionFromPoint(Point<int> point) {
+    return switch(point) {
+      Point<int>(x: 0, y: 0) => ExplosionDirectionType.cross,
+      Point<int>(x: 0, y: <0) => ExplosionDirectionType.up,
+      Point<int>(x: >0, y: 0) => ExplosionDirectionType.right,
+      Point<int>(x: 0, y: >0) => ExplosionDirectionType.down,
+      Point<int>(x: <0, y: 0) => ExplosionDirectionType.left,
+      _ => null,
+    };
+  }
+
+  static ExplosionDirectionType? getDirectionFromPointStrict(Point<int> point) {
+    return switch(point) {
+      Point<int>(x: 0, y: 0) => ExplosionDirectionType.cross,
+      Point<int>(x: 0, y: -1) => ExplosionDirectionType.up,
+      Point<int>(x: 1, y: 0) => ExplosionDirectionType.right,
+      Point<int>(x: 0, y: 1) => ExplosionDirectionType.down,
+      Point<int>(x: -1, y: 0) => ExplosionDirectionType.left,
+      _ => null,
+    };
+  }
 
   Point<int> nextPosition([Point<int>? currentPosition]) {
     if(currentPosition == null) {
