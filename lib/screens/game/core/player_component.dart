@@ -103,6 +103,8 @@ import 'dart:math';
 
 import 'package:bomber_man/screens/game/core/bomb_component.dart';
 import 'package:bomber_man/screens/game/core/bomber_man_constant.dart';
+import 'package:bomber_man/screens/game/core/remote_manager.dart';
+import 'package:bomber_man/screens/game/network_event/network_event.dart';
 import 'package:bomber_man/screens/game/utils/blink_effect.dart';
 import 'package:bomber_man/screens/game/utils/bomber_utils.dart';
 import 'package:bomber_man/screens/game/core/remote_player_component.dart';
@@ -145,6 +147,7 @@ class PlayerComponent extends SimplePlayer with BlockMovementCollision, RemoteMi
     initDirection: Direction.down,
   ) {
     priority = BomberManConstant.player;
+    renderAboveComponents = true;
   }
 
   @override
@@ -285,14 +288,19 @@ class PlayerComponent extends SimplePlayer with BlockMovementCollision, RemoteMi
       return;
     }
 
-    gameRef.add(
-      BombComponent.create(
-        playerIndex,
-        coordinate,
-        BombConfigData(force),
-      ),
-    );
-
+    if(gameRef.query<RemoteManager>().firstOrNull case final manager?) {
+      manager.addBombAndBroadcast(this, coordinate);
+    }
+    else {
+      gameRef.add(
+        BombComponent.create(
+          bombId: null,
+          ownerPlayerIndex: playerIndex,
+          coordinate: coordinate,
+          configData: BombConfigData(force),
+        ),
+      );
+    }
     myPrint('placeBomb');
   }
 
@@ -316,6 +324,8 @@ class PlayerComponent extends SimplePlayer with BlockMovementCollision, RemoteMi
   @override
   void onDie() {
     super.onDie();
+
+    _broadcastDeadEvent();
 
     AnimatedGameObject? stub;
 
@@ -355,5 +365,12 @@ class PlayerComponent extends SimplePlayer with BlockMovementCollision, RemoteMi
     return false;
   }
 
+  void _broadcastDeadEvent() {
+    gameRef.query<RemoteManager>()
+        .firstOrNull
+        ?.pushRemovedObject(
+      playerDeadEvent: PlayerDeadEvent(playerIndex: playerIndex),
+    );
+  }
 
 }

@@ -20,14 +20,25 @@ class AbilityComponent extends GameDecorationWithCollision {
 //   unitmodel.Throw:          0,
 // }
   static final Map<Ability? Function(), double> weightsMap = {
-    () => null : 1.6,
-    () => AbilityCapacity() : 0.5,
-    () => AbilitySpeed() : 0.5,
-    () => AbilityPower() : 0.5,
-    () => AbilityKick() : 0.1,
-    () => AbilityGoldenPower() : 0,
-    () => AbilityThrow() : 0,
-    () => AbilitySkull() : 0,
+    () => null: 1.6,
+    () => AbilityCapacity(): 0.5,
+    () => AbilitySpeed(): 0.5,
+    () => AbilityPower(): 0.5,
+    () => AbilityKick(): 0.1,
+    () => AbilityGoldenPower(): 0,
+    () => AbilityThrow(): 0,
+    () => AbilitySkull(): 0,
+  };
+
+  static final Map<Ability? Function(), double> networkWeightsMap = {
+    () => null: 1.6,
+    () => AbilityCapacity(): 0.5,
+    () => AbilitySpeed(): 0.5,
+    () => AbilityPower(): 0.5,
+    () => AbilityKick(): 0,
+    () => AbilityGoldenPower(): 0,
+    () => AbilityThrow(): 0,
+    () => AbilitySkull(): 0,
   };
 
   final Ability ability;
@@ -53,9 +64,15 @@ class AbilityComponent extends GameDecorationWithCollision {
   static AbilityComponent? random({
     required Point<int> coordinate,
     Random? random,
+    bool useNetwork = false,
   }) {
 
     random ??= Random();
+
+    final weightsMap = switch(useNetwork) {
+      false => AbilityComponent.weightsMap,
+      true => AbilityComponent.networkWeightsMap,
+    };
 
     final totalWeights = weightsMap.values.sum;
     final diceWeight = random.nextDouble() * totalWeights;

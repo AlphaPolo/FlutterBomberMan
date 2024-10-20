@@ -8,6 +8,7 @@ sealed class Ability {
 
 
 class AbilityCapacity extends Ability {
+  static const String tag = 'AbilityCapacity';
 
   @override
   void applyToPlayer(PlayerComponent player) {
@@ -17,6 +18,8 @@ class AbilityCapacity extends Ability {
 }
 
 class AbilitySpeed extends Ability {
+  static const String tag = 'AbilitySpeed';
+
 
   @override
   void applyToPlayer(PlayerComponent player) {
@@ -26,6 +29,8 @@ class AbilitySpeed extends Ability {
 }
 
 class AbilityKick extends Ability {
+  static const String tag = 'AbilityKick';
+
 
   @override
   void applyToPlayer(PlayerComponent player) {
@@ -35,6 +40,8 @@ class AbilityKick extends Ability {
 }
 
 class AbilityThrow extends Ability {
+  static const String tag = 'AbilityThrow';
+
 
   @override
   void applyToPlayer(PlayerComponent player) {
@@ -44,6 +51,8 @@ class AbilityThrow extends Ability {
 }
 
 class AbilityPower extends Ability {
+  static const String tag = 'AbilityPower';
+
 
   @override
   void applyToPlayer(PlayerComponent player) {
@@ -53,6 +62,8 @@ class AbilityPower extends Ability {
 }
 
 class AbilitySkull extends Ability {
+  static const String tag = 'AbilitySkull';
+
 
   @override
   void applyToPlayer(PlayerComponent player) {
@@ -63,6 +74,8 @@ class AbilitySkull extends Ability {
 }
 
 class AbilityGoldenPower extends Ability {
+  static const String tag = 'AbilityGoldenPower';
+
 
   @override
   void applyToPlayer(PlayerComponent player) {

@@ -2,6 +2,8 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:bomber_man/screens/game/core/ability_component.dart';
+import 'package:bomber_man/screens/game/core/remote_manager.dart';
+import 'package:bomber_man/screens/game/network_event/network_event.dart';
 import 'package:bomber_man/screens/game/utils/bomber_utils.dart';
 import 'package:bomber_man/screens/game/utils/object_sprite_sheet.dart';
 import 'package:bonfire/bonfire.dart';
@@ -66,6 +68,16 @@ class BrickObject extends GameDecorationWithCollision with Attackable {
   void onDie() {
     super.onDie();
     final coordinate = BomberUtils.getCoordinate(position);
+    final ability = AbilityComponent.random(
+      coordinate: coordinate,
+      useNetwork: gameRef.query<RemoteManager>().firstOrNull != null,
+    );
+
+    _pushBroadcast(coordinate, ability);
+    playDestroyedAnimation(ability);
+  }
+
+  void playDestroyedAnimation(AbilityComponent? ability) {
     removeWhere((component) => component is GameDecoration);
     addAll([
       GameDecoration.withAnimation(
@@ -86,14 +98,23 @@ class BrickObject extends GameDecorationWithCollision with Attackable {
         period: 0.5,
         removeOnFinish: true,
         onTick: () {
-          if(AbilityComponent.random(coordinate: coordinate) case final component?) {
-            gameRef.add(component);
+          if(ability != null) {
+            gameRef.add(ability);
           }
 
           removeFromParent();
         },
       ),
     ]);
+  }
+
+  void _pushBroadcast(Point<int> coordinate, AbilityComponent? abilityComponent) {
+    gameRef.query<RemoteManager>().firstOrNull?.pushRemovedObject(
+      brickEvent: BrickDestroyedData(
+        coordinate: coordinate,
+        ability: abilityComponent?.ability,
+      ),
+    );
   }
 
 }

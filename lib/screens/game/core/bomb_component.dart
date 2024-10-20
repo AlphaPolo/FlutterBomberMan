@@ -5,7 +5,9 @@ import 'package:bomber_man/screens/game/core/bomber_man_constant.dart';
 import 'package:bomber_man/screens/game/core/map_parser.dart';
 import 'package:bomber_man/screens/game/core/obstacle_manager.dart';
 import 'package:bomber_man/screens/game/core/player_component.dart';
+import 'package:bomber_man/screens/game/core/remote_manager.dart';
 import 'package:bomber_man/screens/game/core/remote_player_component.dart';
+import 'package:bomber_man/screens/game/network_event/network_event.dart';
 import 'package:bomber_man/screens/game/utils/bomber_utils.dart';
 import 'package:bomber_man/screens/game/utils/object_sprite_sheet.dart';
 import 'package:bonfire/bonfire.dart';
@@ -22,10 +24,11 @@ class BombConfigData {
 
 class BombComponent extends GameDecorationWithCollision with Attackable, RemoteMixin {
 
-  static const lifeTime = 2.5;
+  static const double lifeTime = 2.5;
 
   @override
   final bool isHost;
+  final int? bombId;
 
   final BombConfigData configData;
   final Set<Component> ignoreList = {};
@@ -36,6 +39,7 @@ class BombComponent extends GameDecorationWithCollision with Attackable, RemoteM
 
 
   BombComponent._({
+    this.bombId,
     required this.ownerPlayerIndex,
     required this.configData,
     required super.position,
@@ -43,13 +47,15 @@ class BombComponent extends GameDecorationWithCollision with Attackable, RemoteM
     required this.isHost,
   });
 
-  factory BombComponent.create(
+  factory BombComponent.create({
+    int? bombId,
     int? ownerPlayerIndex,
-    Point<int> coordinate,
-    BombConfigData configData,
-    [bool isHost = true]
-  ) {
+    required Point<int> coordinate,
+    required BombConfigData configData,
+    bool isHost = true,
+  }) {
    return BombComponent._(
+      bombId: bombId,
       ownerPlayerIndex: ownerPlayerIndex,
       configData: configData,
       position: Vector2(
@@ -181,6 +187,7 @@ class BombComponent extends GameDecorationWithCollision with Attackable, RemoteM
     }
 
     gameRef.add(ExplosionAnimation.create(explosionData: explosionData));
+    _broadcastExplosion(explosionData);
   }
 
   void checkHitPlayers(Point<int> explosionPosition) {
@@ -266,6 +273,20 @@ class BombComponent extends GameDecorationWithCollision with Attackable, RemoteM
   void applyKickForce(ExplosionDirectionType direction) {
     currentDirection = direction;
     myPrint('currentDirection: $currentDirection');
+  }
+
+  void _broadcastExplosion(List<(ExplosionDirectionType, Point<int>, bool)> explosionData) {
+    final bombId = this.bombId;
+    if (bombId == null) {
+      return;
+    }
+
+    gameRef.query<RemoteManager>().firstOrNull?.pushRemovedObject(
+          removeBombEvent: RemoveBombEvent(
+            bombId: bombId,
+            explosionData: explosionData,
+          ),
+        );
   }
 
 }

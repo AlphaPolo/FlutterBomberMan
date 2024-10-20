@@ -1,15 +1,30 @@
+import 'dart:math';
+
 import 'package:bomber_man/providers/peer_provider.dart';
+import 'package:bomber_man/screens/game/core/ability_component.dart';
 import 'package:bomber_man/screens/game/core/player_component.dart';
 import 'package:bomber_man/screens/game/core/remote_player_component.dart';
 import 'package:bomber_man/screens/game/utils/bomber_utils.dart';
+import 'package:bomber_man/screens/game/utils/id_generator.dart';
 import 'package:bomber_man/utils/my_print.dart';
 import 'package:bonfire/bonfire.dart';
 import 'package:collection/collection.dart';
 
 import '../network_event/network_event.dart';
 import 'bomb_component.dart';
+import 'map_parser.dart';
 
 class RemoteManager extends GameComponent {
+  IdGenerator bombIdGenerator = idGenerator();
+  Set<int> removedBombIds = {};
+
+  /// for host
+  (
+    List<RemoveBombEvent> removeBombEvents,
+    List<BrickDestroyedData> destoryedBricks,
+    List<PlayerDeadEvent> killPlayers,
+  )? collectExplosionDataThisFrame;
+
   bool isHost;
 
   final PeerProvider provider;
@@ -43,6 +58,7 @@ class RemoteManager extends GameComponent {
     elapsedTime += dt;
     super.update(dt);
     scanPositions(dt);
+    checkCollectAndBroadcast();
   }
 
   void scanPositions(double dt) {
@@ -65,7 +81,7 @@ class RemoteManager extends GameComponent {
                   SimpleAnimationEnum.idleDown,
             ),
             if (player.consumeBombTrigger())
-              DropBombData(
+              DropBombData.client(
                 playerIndex: player.playerIndex,
                 coordinate: BomberUtils.getCoordinate(player.position),
               ),
@@ -82,6 +98,12 @@ class RemoteManager extends GameComponent {
         onPlayerPositionEvent(playerIndex, eventData);
       case DropBombData():
         onDropBombEvent(eventData);
+      case RemoveBombEvent():
+        onRemoveBombEvent(eventData);
+      case BrickDestroyedData():
+        onRemoveBrickEvent(eventData);
+      case PlayerDeadEvent():
+        onPlayerDeadEvent(eventData);
     }
   }
 
@@ -109,37 +131,132 @@ class RemoteManager extends GameComponent {
         return;
       }
 
-      gameRef.add(
-        BombComponent.create(
-          player.playerIndex,
-          eventData.coordinate,
-          BombConfigData(player.force),
-          true,
-        ),
-      );
-
-      provider.send(
-        GameUpdateMessage(
-          timestamp: elapsedTime,
-          data: [
-            DropBombData(
-              playerIndex: player.playerIndex,
-              coordinate: eventData.coordinate,
-            ),
-          ],
-        ),
-      );
+      addBombAndBroadcast(player, eventData.coordinate);
     }
     else {
-      myPrint('Receive Bomb Event');
+      myPrint('Receive Bomb Event: ${eventData.bombId}');
+      if(removedBombIds.contains(eventData.bombId)) {
+        return;
+      }
+
       gameRef.add(
         BombComponent.create(
-          player.playerIndex,
-          eventData.coordinate,
-          BombConfigData(player.force),
-          false,
+          bombId: eventData.bombId,
+          ownerPlayerIndex: player.playerIndex,
+          coordinate: eventData.coordinate,
+          configData: BombConfigData(player.force),
+          isHost: false,
         ),
       );
     }
+  }
+
+  void addBombAndBroadcast(PlayerComponent player, Point<int> coordinate) {
+    final bombId = bombIdGenerator();
+
+
+    gameRef.add(
+      BombComponent.create(
+        bombId: bombId,
+        ownerPlayerIndex: player.playerIndex,
+        coordinate: coordinate,
+        configData: BombConfigData(player.force),
+        isHost: true,
+      ),
+    );
+
+    provider.send(
+      GameUpdateMessage(
+        timestamp: elapsedTime,
+        data: [
+          DropBombData(
+            bombId: bombId,
+            playerIndex: player.playerIndex,
+            coordinate: coordinate,
+          ),
+        ],
+      ),
+    );
+  }
+
+  void onRemoveBombEvent(RemoveBombEvent eventData) {
+    myPrint('remove event: ${eventData.bombId}');
+    gameRef.query<BombComponent>()
+        .where((bomb) => bomb.bombId != null)
+        .firstWhereOrNull((bomb) => bomb.bombId == eventData.bombId)
+        ?.removeFromParent();
+
+    if(eventData.explosionData.isNotEmpty) {
+      gameRef.add(ExplosionAnimation.create(explosionData: eventData.explosionData));
+    }
+  }
+
+  void onRemoveBrickEvent(BrickDestroyedData eventData) {
+    final ability = switch(eventData.ability) {
+      final ability? => AbilityComponent.create(ability: ability, coordinate: eventData.coordinate),
+      _ => null,
+    };
+
+    gameRef.query<BrickObject>()
+        .firstWhereOrNull((brick) => BomberUtils.getCoordinate(brick.position) == eventData.coordinate)
+        ?.playDestroyedAnimation(ability);
+  }
+
+  void onPlayerDeadEvent(PlayerDeadEvent eventData) {
+    gameRef.query<PlayerComponent>()
+      .firstWhereOrNull((player) => player.playerIndex == eventData.playerIndex)
+      ?.onReceiveDamageFromNetwork(AttackOriginEnum.WORLD, 1000, null);
+  }
+
+  void pushRemovedObject({
+    RemoveBombEvent? removeBombEvent,
+    BrickDestroyedData? brickEvent,
+    PlayerDeadEvent? playerDeadEvent,
+  }) {
+    if(!isHost) {
+      return;
+    }
+
+    collectExplosionDataThisFrame ??= ([], [], []);
+    final (removeBombEvents, bricks, killPlayers) = collectExplosionDataThisFrame!;
+
+    if(removeBombEvent != null) {
+      removeBombEvents.add(removeBombEvent);
+    }
+
+    if(brickEvent != null) {
+      bricks.add(brickEvent);
+    }
+
+    if(playerDeadEvent != null) {
+      killPlayers.add(playerDeadEvent);
+    }
+  }
+
+  void checkCollectAndBroadcast() {
+    final data = collectExplosionDataThisFrame;
+
+    if(!isHost || data == null) {
+      return;
+    }
+
+    final (
+      removeBombEvents,
+      bricks,
+      killPlayers,
+    ) = collectExplosionDataThisFrame!;
+
+    provider.send(
+      GameUpdateMessage(
+        timestamp: elapsedTime,
+        data: [
+          ...removeBombEvents,
+          ...bricks,
+          ...killPlayers,
+        ],
+      ),
+    );
+
+    collectExplosionDataThisFrame = null;
   }
 }

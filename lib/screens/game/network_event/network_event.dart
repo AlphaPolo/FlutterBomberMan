@@ -1,6 +1,9 @@
 import 'dart:math';
 
+import 'package:bomber_man/screens/game/core/ability.dart';
 import 'package:bonfire/bonfire.dart';
+
+import '../core/bomb_component.dart';
 
 sealed class PeerMessage {
   const PeerMessage();
@@ -89,6 +92,9 @@ sealed class GameEventData {
     return switch (json['tag']) {
       PlayerPositionData.tag => PlayerPositionData.fromJson(json),
       DropBombData.tag => DropBombData.fromJson(json),
+      RemoveBombEvent.tag => RemoveBombEvent.fromJson(json),
+      BrickDestroyedData.tag => BrickDestroyedData.fromJson(json),
+      PlayerDeadEvent.tag => PlayerDeadEvent.fromJson(json),
       _ => throw 'GameEventData error',
     };
   }
@@ -137,16 +143,25 @@ class PlayerPositionData extends GameEventData {
 class DropBombData extends GameEventData {
   static const String tag = 'DropBomb';
 
+  final int? bombId;
   final int playerIndex;
   final Point<int> coordinate;
 
+
+  const DropBombData.client({
+    required this.playerIndex,
+    required this.coordinate,
+  }): bombId = null;
+
   const DropBombData({
+    required this.bombId,
     required this.playerIndex,
     required this.coordinate,
   });
 
   factory DropBombData.fromJson(Map<String, dynamic> json) {
     return DropBombData(
+      bombId: json['bombId'],
       playerIndex: json['playerIndex'],
       coordinate: Point<int>(
         json['coordinate']['x'],
@@ -159,6 +174,7 @@ class DropBombData extends GameEventData {
   Map<String, dynamic> toJson() {
     return {
       'tag': tag,
+      'bombId': bombId,
       'playerIndex': playerIndex,
       'coordinate': {
         'x': coordinate.x,
@@ -167,4 +183,126 @@ class DropBombData extends GameEventData {
     };
   }
 
+}
+
+class RemoveBombEvent extends GameEventData {
+  static const String tag = 'RemoveBomb';
+
+  final int bombId;
+  final List<(ExplosionDirectionType, Point<int>, bool)> explosionData;
+
+  const RemoveBombEvent({
+    required this.bombId,
+    this.explosionData = const [],
+  });
+
+  factory RemoveBombEvent.fromJson(Map<String, dynamic> json) {
+    return RemoveBombEvent(
+      bombId: json['bombId'],
+      explosionData: (json['explosionData'] as List<dynamic>).map((data) {
+        final directionType = ExplosionDirectionType.values[data['explosionDirectionType']];
+        final coordinate = Point<int>(data['coordinate']['x'], data['coordinate']['y']);
+        final isEdge = data['isEdge'] as bool;
+        return (directionType, coordinate, isEdge);
+      }).toList(),
+    );
+  }
+
+  @override
+  Map<String, dynamic> toJson() {
+    return {
+      'tag': tag,
+      'bombId': bombId,
+      'explosionData': explosionData.map((data) {
+        return {
+          'explosionDirectionType': data.$1.index,
+          'coordinate': {
+            'x': data.$2.x,
+            'y': data.$2.y,
+          },
+          'isEdge': data.$3,
+        };
+      }).toList(),
+    };
+  }
+
+}
+
+
+class BrickDestroyedData extends GameEventData {
+
+  static const String tag = 'BrickDestroyed';
+
+  final Point<int> coordinate;
+  final Ability? ability;
+
+  const BrickDestroyedData({
+    required this.coordinate,
+    this.ability,
+  });
+
+  factory BrickDestroyedData.fromJson(Map<String, dynamic> json) {
+    return BrickDestroyedData(
+      coordinate: Point<int>(
+        json['coordinate']['x'],
+        json['coordinate']['y'],
+      ),
+      ability: switch(json['ability']) {
+        AbilityCapacity.tag => AbilityCapacity(),
+        AbilitySpeed.tag => AbilitySpeed(),
+        AbilityKick.tag => AbilityKick(),
+        AbilityThrow.tag => AbilityThrow(),
+        AbilityPower.tag => AbilityPower(),
+        AbilitySkull.tag => AbilitySkull(),
+        AbilityGoldenPower.tag => AbilityGoldenPower(),
+        _ => null,
+      },
+    );
+  }
+
+  @override
+  Map<String, dynamic> toJson() {
+    return {
+      'tag': tag,
+      'coordinate': {
+        'x': coordinate.x,
+        'y': coordinate.y,
+      },
+      'ability': switch(ability) {
+        AbilityCapacity() => AbilityCapacity.tag,
+        AbilitySpeed() => AbilitySpeed.tag,
+        AbilityKick() => AbilityKick.tag,
+        AbilityThrow() => AbilityThrow.tag,
+        AbilityPower() => AbilityPower.tag,
+        AbilitySkull() => AbilitySkull.tag,
+        AbilityGoldenPower() => AbilityGoldenPower.tag,
+        _ => null,
+      },
+    };
+  }
+}
+
+class PlayerDeadEvent extends GameEventData {
+
+  static const String tag = 'PlayerDead';
+
+  final int playerIndex;
+
+  const PlayerDeadEvent({
+    required this.playerIndex,
+  });
+
+  factory PlayerDeadEvent.fromJson(Map<String, dynamic> json) {
+    return PlayerDeadEvent(
+      playerIndex: json['playerIndex'],
+    );
+  }
+
+  @override
+  Map<String, dynamic> toJson() {
+    return {
+      'tag': tag,
+      'playerIndex': playerIndex,
+    };
+  }
 }

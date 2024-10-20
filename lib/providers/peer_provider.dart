@@ -16,7 +16,7 @@ class PeerProvider extends ChangeNotifier {
 
   final Peer _peer = Peer(
     options: PeerOptions(
-      debug: LogLevel.All,
+      // debug: LogLevel.All,
       key: 'AlphaPoloBomberMan',
     ),
   );
