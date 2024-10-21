@@ -1,0 +1,35 @@
+name: Flutter CI/CD to Firebase Hosting
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    # 檢查出你的代碼
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    # 設置 Flutter SDK
+    - name: Set up Flutter
+      uses: subosito/flutter-action@v2
+      with:
+        flutter-version: "stable"
+
+    # 取得 Firebase token 以進行部署
+    - name: Install Firebase CLI
+      run: npm install -g firebase-tools
+
+    # 執行 Flutter Web 應用的構建
+    - name: Build Flutter Web
+      run: flutter build web --release
+
+    # 部署到 Firebase Hosting
+    - name: Deploy to Firebase Hosting
+      env:
+        FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+      run: firebase deploy --only hosting
