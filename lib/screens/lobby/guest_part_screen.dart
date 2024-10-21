@@ -1,3 +1,5 @@
+import 'package:bomber_man/screens/lobby/guest_row.dart';
+import 'package:bomber_man/screens/lobby/network_key_config_selector.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -27,7 +29,28 @@ class GuestPartScreen extends StatelessWidget {
           children: [
             const Text('Guest'),
             const SizedBox(height: 12.0),
-            buildInputIdRow(),
+            Selector<PeerProvider, bool>(
+              selector: (context, provider) => provider.connected,
+              builder: (context, isConnected, child) {
+                return Column(
+                  children: [
+                    Offstage(
+                      offstage: isConnected,
+                      child: IgnorePointer(
+                        ignoring: isConnected,
+                        child: child!,
+                      ),
+                    ),
+                    if(isConnected)
+                      const GuestRow(),
+                    const SizedBox(height: 32.0),
+                    const NetworkKeyConfigSelector(),
+                  ],
+                );
+
+              },
+              child: buildInputIdRow(),
+            ),
             const SizedBox(height: 32.0),
             ElevatedButton(
               onPressed: () => Navigator.of(context).maybePop(),

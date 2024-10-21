@@ -9,6 +9,7 @@ import 'package:bomber_man/screens/game/core/obstacle_manager.dart';
 import 'package:bomber_man/screens/game/core/player_component.dart';
 import 'package:bomber_man/screens/game/core/remote_manager.dart';
 import 'package:bomber_man/screens/game/core/remote_player_component.dart';
+import 'package:bomber_man/screens/game/overlays/disconnect_dialog.dart';
 import 'package:bomber_man/screens/game/overlays/game_over_dialog.dart';
 import 'package:bonfire/bonfire.dart';
 import 'package:collection/collection.dart';
@@ -90,7 +91,7 @@ class _MultiGameScreenState extends State<MultiGameScreen> {
         obstacleManager,
         remoteManager,
       ],
-      // interface: game,
+      interface: game,
       playerControllers: [
         Keyboard(
           config: getKeyboardConfigFrom(controlPlayer.keyConfig),
@@ -117,6 +118,9 @@ class _MultiGameScreenState extends State<MultiGameScreen> {
       overlayBuilderMap: {
         'GameOver': (context, gameRef) {
           return GameOverDialog(gameRef: gameRef);
+        },
+        'Disconnect': (context, gameRef) {
+          return const DisconnectDialog();
         },
       },
     );

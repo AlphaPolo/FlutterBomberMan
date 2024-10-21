@@ -33,6 +33,7 @@ class PeerProvider extends ChangeNotifier {
   final Set<String> _connections = {};
 
   void Function(GameUpdateMessage message)? _callback;
+  void Function()? _onDisconnectCallback;
 
   int get connections => _connections.length;
 
@@ -73,28 +74,20 @@ class PeerProvider extends ChangeNotifier {
         return;
       }
 
-
       _conn = conn;
       _connections.add(_conn.connectionId);
-      myPrint('host receive data: $conn');
 
       _conn.on("data").listen((data) {
         if(!context.mounted) return;
-
-        myPrint('host receive data: $data');
 
         switch(PeerMessage.parse(data)) {
           case GameInitMessage(:final gameId, :final initialMap):
             myPrint('GameInitMessageEvent: $gameId, $initialMap');
             _onPlay(context, initialMap);
-        // case GameUpdateMessage(:final timestamp, :final data):
           case GameUpdateMessage gameUpdateMessage:
             _callback?.call(gameUpdateMessage);
           case _:
         }
-
-        // ScaffoldMessenger.of(context)
-        //     .showSnackBar(SnackBar(content: Text(data)));
       });
 
       _conn.on("binary").listen((data) {
@@ -108,6 +101,7 @@ class PeerProvider extends ChangeNotifier {
         myPrint('host onReceive close');
         _connected = false;
         notifyListeners();
+        _onDisconnectCallback?.call();
       });
 
       _connected = true;
@@ -117,30 +111,28 @@ class PeerProvider extends ChangeNotifier {
 
   void _setGuestListener(DataConnection connection, BuildContext context) {
     _conn.on("open").listen((event) {
+      _connections.add(connection.connectionId);
       _connected = true;
       notifyListeners();
 
       connection.on("close").listen((event) {
+        _connections.remove(connection.connectionId);
         _connected = false;
         notifyListeners();
+        _onDisconnectCallback?.call();
       });
 
       connection.on("data").listen((data) {
         if(!context.mounted) return;
-        // myPrint('Guest onData: $data');
 
         switch(PeerMessage.parse(data)) {
           case GameInitMessage(:final gameId, :final initialMap):
             myPrint('GameInitMessageEvent: $gameId, $initialMap');
             _onPlay(context, initialMap);
-        // case GameUpdateMessage(:final timestamp, :final data):
           case GameUpdateMessage gameUpdateMessage:
             _callback?.call(gameUpdateMessage);
           case _:
         }
-
-        // ScaffoldMessenger.of(context)
-        //     .showSnackBar(SnackBar(content: Text(data)));
       });
 
       connection.on("binary").listen((data) {
@@ -164,13 +156,13 @@ class PeerProvider extends ChangeNotifier {
 
     if(!context.mounted) return;
 
-    Navigator.of(context).push(
+    await Navigator.of(context).push(
       MultiGameScreen.route(
         firstPlayer: PlayerComponent(
           position: BomberUtils.getPositionCenter(
             const Point<int>(0, 0),
           ),
-          keyConfig: context.read<SettingsProvider>().player1KeyConfig,
+          keyConfig: context.read<SettingsProvider>().networkKeyConfig,
           playerIndex: 0,
           isHost: true,
         ),
@@ -186,12 +178,17 @@ class PeerProvider extends ChangeNotifier {
         isHost: true,
       ),
     );
+
+    _disconnect();
+
+    if(!context.mounted) return;
+    Navigator.pop(context);
   }
 
   void _onPlay(BuildContext context, String initialMap) async {
     if(!context.mounted) return;
 
-    Navigator.of(context).push(
+    await Navigator.of(context).push(
       MultiGameScreen.route(
         firstPlayer: RemotePlayerComponent(
           position: BomberUtils.getPositionCenter(
@@ -204,7 +201,7 @@ class PeerProvider extends ChangeNotifier {
           position: BomberUtils.getPositionCenter(
             const Point<int>(14, 12),
           ),
-          keyConfig: context.read<SettingsProvider>().player1KeyConfig,
+          keyConfig: context.read<SettingsProvider>().networkKeyConfig,
           playerIndex: 1,
           isHost: false,
         ),
@@ -213,6 +210,19 @@ class PeerProvider extends ChangeNotifier {
         isHost: false,
       ),
     );
+
+    _disconnect();
+
+    if(!context.mounted) return;
+    Navigator.pop(context);
+  }
+
+  void _disconnect() {
+    _conn.dispose();
+    _connected = false;
+    _connections.clear();
+    _peer.disconnect();
+    notifyListeners();
   }
 
 
@@ -222,6 +232,10 @@ class PeerProvider extends ChangeNotifier {
 
   void setOnGameUpdateListener(void Function(GameUpdateMessage)? callback) {
     _callback = callback;
+  }
+
+  void setDisconnectListener(void Function()? callback) {
+    _onDisconnectCallback = callback;
   }
 
 }

@@ -45,11 +45,20 @@ class RemoteManager extends GameComponent {
         }
       },
     );
+    provider.setDisconnectListener(() {
+      if(gameRef.overlays.isActive('GameOver')) {
+        return;
+      }
+      gameRef.overlays.clear();
+      gameRef.overlays.add('Disconnect');
+      gameRef.pauseEngine();
+    });
   }
 
   @override
   void onRemove() {
     provider.setOnGameUpdateListener(null);
+    provider.setDisconnectListener(null);
     super.onRemove();
   }
 

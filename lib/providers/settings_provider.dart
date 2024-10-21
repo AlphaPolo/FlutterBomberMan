@@ -4,9 +4,13 @@ import 'package:flutter/services.dart';
 class SettingsProvider extends ChangeNotifier {
   BomberManKeyConfig _player1KeyConfig = BomberManKeyConfig.player1();
   BomberManKeyConfig _player2KeyConfig = BomberManKeyConfig.player2();
+  late BomberManKeyConfig _networkKeyConfig = _player1KeyConfig;
 
   BomberManKeyConfig get player1KeyConfig => _player1KeyConfig;
   BomberManKeyConfig get player2KeyConfig => _player2KeyConfig;
+  BomberManKeyConfig get networkKeyConfig => _networkKeyConfig;
+
+
 
   set player1KeyConfig(BomberManKeyConfig value) {
     _player1KeyConfig = value;
@@ -15,6 +19,11 @@ class SettingsProvider extends ChangeNotifier {
 
   set player2KeyConfig(BomberManKeyConfig value) {
     _player2KeyConfig = value;
+    notifyListeners();
+  }
+
+  set networkKeyConfig(BomberManKeyConfig value) {
+    _networkKeyConfig = value;
     notifyListeners();
   }
 }

@@ -4,6 +4,8 @@ class BomberManConstant {
 
   const BomberManConstant._();
 
+  static const String version = '1.0.1';
+
   static const double maxSpeed = 550;
   static const double defaultSpeed = 150;
 
