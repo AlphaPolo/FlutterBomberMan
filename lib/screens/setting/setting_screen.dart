@@ -1,8 +1,11 @@
 import 'package:bomber_man/providers/settings_provider.dart';
+import 'package:bomber_man/widgets/dialog/base_style_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:provider/provider.dart';
+
+import '../../utils/my_transition.dart';
 
 typedef BindingKeyChanged = void Function(BomberManKeyConfig);
 typedef ConfigSelector = BomberManKeyConfig Function(
@@ -66,6 +69,28 @@ class _SettingScreenState extends State<SettingScreen> {
             },
             child: Text(MaterialLocalizations.of(context).backButtonTooltip),
           ),
+
+          /// Test Keyboard Preview
+          // ElevatedButton(
+          //   onPressed: () {
+          //     showDialog(
+          //       context: context,
+          //       builder: (context) {
+          //         final keyBindings = <LogicalKeyboardKey, BomberManKey>{
+          //           for(final MapEntry(:key, :value) in context.read<SettingsProvider>().player1KeyConfig.keyMap.entries)
+          //             value: key,
+          //         };
+          //
+          //         return Dialog(
+          //           child: GameKeyboardPreview(
+          //             keyBindings: keyBindings,
+          //           ),
+          //         );
+          //       },
+          //     );
+          //   },
+          //   child: const Text('Test'),
+          // ),
         ],
       ),
     );
@@ -162,7 +187,7 @@ Future<LogicalKeyboardKey?> _showKeyBindingDialog(
     barrierDismissible: true,
     barrierLabel: 'Dismiss',
     context: context,
-    transitionBuilder: _buildMaterialDialogTransitions,
+    transitionBuilder: buildMyMaterialDialogTransitions,
     pageBuilder: (context, animation, secondaryAnimation) {
       return _KeyBindingDialog(initialPair: (bomberManKey, currentKey));
     },
@@ -196,28 +221,7 @@ class _KeyBindingDialogState extends State<_KeyBindingDialog> {
 
   @override
   Widget build(BuildContext context) {
-    return Dialog(
-      elevation: 10,
-      backgroundColor: Colors.black87,
-      shadowColor: Colors.grey.withOpacity(0.7),
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.all(Radius.circular(8.0)),
-        side: BorderSide(width: 4, color: Colors.white),
-      ),
-      child: DefaultTextStyle.merge(
-        style: const TextStyle(color: Colors.white),
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: AnimatedSize(
-            duration: 200.ms,
-            curve: Curves.easeOutQuart,
-            child: IntrinsicWidth(
-              child: buildBody(),
-            ),
-          ),
-        ),
-      ),
-    );
+    return BaseStyleDialog(child: buildBody());
   }
 
   Widget buildBody() {
@@ -246,24 +250,4 @@ class _KeyBindingDialogState extends State<_KeyBindingDialog> {
       ),
     );
   }
-}
-
-Widget _buildMaterialDialogTransitions(
-  BuildContext context,
-  Animation<double> animation,
-  Animation<double> secondaryAnimation,
-  Widget child,
-) {
-  final curveAnimation = CurvedAnimation(
-    parent: animation.drive(Tween(begin: 0.3, end: 1)),
-    curve: Curves.easeOutBack,
-  );
-  // 使用缩放动画
-  return FadeTransition(
-    opacity: animation,
-    child: ScaleTransition(
-      scale: curveAnimation,
-      child: child,
-    ),
-  );
 }

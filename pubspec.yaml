@@ -37,6 +37,7 @@ flutter:
   assets:
     - assets/map/
     - assets/images/spritesheet.png
+    - assets/images/icon_bomb.png
     - assets/images/wall_tile.png
     - assets/images/explode_sheet.png
     - assets/images/tiled/tiles.json
