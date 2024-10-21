@@ -18,7 +18,9 @@ jobs:
     - name: Set up Flutter
       uses: subosito/flutter-action@v2
       with:
-        flutter-version: "stable"
+        flutter-version: '3.24.3'
+        architecture: 'X64'
+        cache: true
 
     # 取得 Firebase token 以進行部署
     - name: Install Firebase CLI
