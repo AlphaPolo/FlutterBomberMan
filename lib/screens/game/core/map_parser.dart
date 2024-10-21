@@ -53,10 +53,7 @@ class BrickObject extends GameDecorationWithCollision with Attackable {
 
   factory BrickObject.createFromMap(Point<int> coordinate) {
     final brick = BrickObject._(
-      position: Vector2(
-        (coordinate.x + 0.5) * BomberManConstant.cellSize.width,
-        (coordinate.y + 0.5) * BomberManConstant.cellSize.height,
-      ),
+      position: BomberUtils.getPositionCenter(coordinate),
       size: BomberManConstant.cellSize.toVector2(),
     );
     brick.anchor = Anchor.center;

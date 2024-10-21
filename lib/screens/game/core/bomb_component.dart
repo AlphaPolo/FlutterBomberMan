@@ -392,10 +392,7 @@ class ExplosionAnimation extends GameDecoration {
   }) {
 
     final (_, coordinate, _) = explosionData.firstWhere((data) => data.$1 == ExplosionDirectionType.cross);
-    final position = Vector2(
-      (coordinate.x + 0.5) * BomberManConstant.cellSize.width,
-      (coordinate.y + 0.5) * BomberManConstant.cellSize.height,
-    );
+    final position = BomberUtils.getPositionCenter(coordinate);
 
     return ExplosionAnimation._(
       position: position,
@@ -431,7 +428,7 @@ class ExplosionAnimation extends GameDecoration {
   }
 
   Component mapToExplodeChild((ExplosionDirectionType, Point<int>, bool) data, Vector2 cellSize) {
-    final (ExplosionDirectionType type, Point<int> position, bool isEdge) = data;
+    final (ExplosionDirectionType type, Point<int> coordinate, bool isEdge) = data;
 
     final double textureY = switch(type) {
       ExplosionDirectionType.cross => 0,
@@ -449,10 +446,7 @@ class ExplosionAnimation extends GameDecoration {
           stepTime: explodeStepTime,
         ),
       ),
-      position: Vector2(
-        (position.x + 0.5) * BomberManConstant.cellSize.width,
-        (position.y + 0.5) * BomberManConstant.cellSize.height,
-      ),
+      position: BomberUtils.getPositionCenter(coordinate),
       anchor: Anchor.center,
       size: cellSize,
       angle: type.angle,
