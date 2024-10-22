@@ -171,11 +171,25 @@ class GameKeyboardPreview extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.all(4.0),
       child: Container(
+        clipBehavior: Clip.none,
         // padding: const EdgeInsets.all(8.0),
         decoration: BoxDecoration(
           color: color ?? Colors.grey[300],
           borderRadius: BorderRadius.circular(6.0),
-          border: Border.all(color: Colors.black, width: 2),
+          border: const Border.fromBorderSide(
+            BorderSide(
+              color: Color(0xAA333333),
+              width: 0.3,
+            ),
+          ),
+          boxShadow: const [
+            BoxShadow(
+              color: Color(0xAA333333),
+              spreadRadius: 1,
+              blurRadius: 1,
+              offset: Offset(1.5, 2.5),
+            ),
+          ],
         ),
         width: getKeyWidth(key), // 設置不同按鍵的寬度
         height: customHeight ?? 40,
