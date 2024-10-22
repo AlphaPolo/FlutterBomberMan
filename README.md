@@ -1,51 +1,54 @@
+[English](README_en.md) | [中文](README.md)
+---
+
 # Flutter BomberMan
-![Game Demo Preview](display/game_demo.png)
-![P2P ROOM](display/p2p_room2.png)
+![遊戲示範預覽](display/game_demo.png)
+![P2P 房間](display/p2p_room2.png)
 
-## Live Demo
+## 在線示範
 
-Check out the live demo of BomberMan: [Demo](https://flutterbomberman.web.app/)
+體驗遊玩 BomberMan：[示範](https://flutterbomberman.web.app/)
 
-## Project Overview
+## 專案概述
 
-**Flutter BomberMan** is a Bomberman-style game implemented using **Flutter Bonfire**. It supports peer-to-peer (P2P) multiplayer connections, allowing two players to connect and play together seamlessly. The P2P functionality is powered by the **PeerDart** package. Additionally, players can customize the control bindings for both Player 1 (1P) and Player 2 (2P), and preview the key configurations with an intuitive preview screen.
+這個專案是使用 **Flutter Bonfire** 實現的炸彈超人遊戲。它支持點對點 (P2P) 多人連接，允許兩名玩家無縫連接並一起遊玩。P2P 功能由 **PeerDart** 套件實現。此外，玩家可以自定義 Player 1 (1P) 和 Player 2 (2P) 的控制綁定，並通過直觀的預覽畫面查看鍵位配置。
 
-### Key Features:
+### 主要特點：
 
-- **P2P Multiplayer**: Play with friends via P2P connection, providing a smooth and direct multiplayer experience using PeerDart.
-  ![P2P ROOM](display/p2p_room1.png)
-- **Custom Key Bindings**: Players can customize their control keys for both Player 1 and Player 2, offering a personalized gaming experience.
-  ![Key Setting](display/key_setting.png)
-- **Key Binding Preview**: Preview the custom key bindings for both players with a visual layout.  
-  ![Keyboard Preview](display/keyboard_preview.png)
+- **P2P 多人遊戲**：通過 P2P 連接與朋友一起遊玩，提供流暢且直接的多人體驗，使用 PeerDart 實現。
+  ![P2P 房間](display/p2p_room1.png)
+- **自定義鍵綁定**：玩家可以自定義 Player 1 和 Player 2 的控制鍵，提供個性化的遊戲體驗。
+  ![鍵位設置](display/key_setting.png)
+- **鍵綁定預覽**：可視化預覽兩名玩家的自定義鍵綁定。
+  ![鍵盤預覽](display/keyboard_preview.png)
 
-## Abilities
+## 能力
 
-In the game, players can pick up various abilities that enhance their gameplay. Below is a list of the available abilities with their respective effects:
+在遊戲中，玩家可以獲得各種能力來增強遊戲體驗。以下是可用能力及其各自效果的列表：
 
-### Ability Showcase:
+### 能力展示：
 
 <table>
   <tr>
-    <td><img src="display/tile000.png" alt="Bomb Capacity" style="width:50px; height:auto;"></td>
-    <td><strong>Bomb Capacity</strong>: Picking up this ability allows the player to place more bombs on the map simultaneously.</td>
+    <td><img src="display/tile000.png" alt="炸彈容量" style="width:50px; height:auto;"></td>
+    <td><strong>炸彈容量</strong>：獲得此能力後，玩家可以在地圖上同時放置更多炸彈。</td>
   </tr>
   <tr>
-    <td><img src="display/tile004.png" alt="Explosion Power" style="width:50px; height:auto;"></td>
-    <td><strong>Explosion Power</strong>: Increases the explosion range in all four directions when the player places a bomb, making it more powerful.</td>
+    <td><img src="display/tile004.png" alt="爆炸威力" style="width:50px; height:auto;"></td>
+    <td><strong>爆炸威力</strong>：增加玩家放置炸彈時四個方向的爆炸範圍，增強其威力。</td>
   </tr>
   <tr>
-    <td><img src="display/tile001.png" alt="Speed Boost" style="width:50px; height:auto;"></td>
-    <td><strong>Speed Boost</strong>: Grants a temporary increase in the player's movement speed, allowing them to navigate the map faster.</td>
+    <td><img src="display/tile001.png" alt="速度提升" style="width:50px; height:auto;"></td>
+    <td><strong>速度提升</strong>：增加玩家的移動速度，使其能夠更快地在地圖上移動。</td>
   </tr>
   <tr>
-    <td><img src="display/tile002.png" alt="Kick Bomb" style="width:50px; height:auto;"></td>
-    <td><strong>Kick Bomb</strong>: When this ability is obtained, the player can kick bombs upon contact, sending them across the map. (Currently not implemented in P2P mode).</td>
+    <td><img src="display/tile002.png" alt="踢炸彈" style="width:50px; height:auto;"></td>
+    <td><strong>踢炸彈</strong>：獲得此能力後，玩家可以踢炸彈，炸彈將會持續向前移動，直到撞到障礙物、玩家或邊界。(目前未在 P2P 模式中實現)。</td>
   </tr>
   <tr>
-    <td><img src="display/tile003.png" alt="Throw Bomb" style="width:50px; height:auto;"></td>
-    <td><strong>Throw Bomb</strong>: (Not yet implemented). This feature will allow players to throw bombs over walls for strategic advantage.</td>
+    <td><img src="display/tile003.png" alt="投擲炸彈" style="width:50px; height:auto;"></td>
+    <td><strong>投擲炸彈</strong>：(尚未實現)。此功能將允許玩家在牆上投擲炸彈以獲得戰略優勢。</td>
   </tr>
 </table>
 
-Enjoy!
+---
