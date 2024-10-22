@@ -26,6 +26,8 @@ class ObstacleManager extends GameComponent {
   void onMount() {
     super.onMount();
 
+    /// 記錄所有不可破壞的物件座標
+    /// 以便之後高效實現遊戲判斷的邏輯
     final result = gameRef.map.layers
       .firstWhereOrNull((layer) => layer.name == 'blocks')
       ?.tiles;

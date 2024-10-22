@@ -13,11 +13,8 @@ import 'bomber_man_constant.dart';
 class BrickObject extends GameDecorationWithCollision with Attackable {
 
   BrickObject._({
-    // super.priority = BomberManConstant.environment,
-    // required super.sprite,
     required super.position,
     required super.size,
-    // Iterable<Behavior>? behaviors,
   }) {
     priority = BomberManConstant.environment;
   }

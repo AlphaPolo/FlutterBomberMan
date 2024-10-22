@@ -70,6 +70,9 @@ class RemoteManager extends GameComponent {
     checkCollectAndBroadcast();
   }
 
+  /// 監測可操作玩家的位置資訊
+  /// 這邊使用的是陣列的操作
+  /// 因為設想以後可能連線時是 2 vs 2 的可能性
   void scanPositions(double dt) {
     const interval = 16*2;
     // const interval = 1000;
@@ -116,6 +119,8 @@ class RemoteManager extends GameComponent {
     }
   }
 
+  /// Host 接收到此 Event 的話需要將 Event 再分發給其他玩家 (目前因為是 1 vs 1並未實作)
+  /// Client 接收到的話則是直接更新其他 RemotePlayerComponent 的位置資訊即可
   void onPlayerPositionEvent(int playerIndex, PlayerPositionData eventData) {
     gameRef.query<RemotePlayerComponent>()
         .whereType<RemotePlayerComponent>()
@@ -123,6 +128,12 @@ class RemoteManager extends GameComponent {
         ?.onRemoteUpdatePosition(eventData);
   }
 
+  /// Host 如果收到這個 Event 的話判斷發出訊號的玩家是否能夠合法的放置炸彈
+  /// 如果合法會在廣播一個訊號給其他玩家說此位置被放置了炸彈
+  ///
+  /// Client 端接收到訊號後就會在此座標也放置上炸彈
+  /// 需要注意的是 Client 端不會判斷秒數引爆的邏輯
+  /// 這部分統一是由 Host 廣播訊號
   void onDropBombEvent(DropBombData eventData) {
     final player = gameRef.query<PlayerComponent>()
         .firstWhereOrNull((player) => player.playerIndex == eventData.playerIndex);
@@ -188,6 +199,7 @@ class RemoteManager extends GameComponent {
     );
   }
 
+  /// 只有 Client 端會收到此事件，收到時將會移除對應 ID 的炸彈並撥放爆炸特效
   void onRemoveBombEvent(RemoveBombEvent eventData) {
     myPrint('remove event: ${eventData.bombId}');
     gameRef.query<BombComponent>()
@@ -200,6 +212,7 @@ class RemoteManager extends GameComponent {
     }
   }
 
+  /// 只有 Client 端會收到此事件，收到時會炸毀牆壁，並且如果有產生能力的話將會在炸毀動畫後產生
   void onRemoveBrickEvent(BrickDestroyedData eventData) {
     final ability = switch(eventData.ability) {
       final ability? => AbilityComponent.create(ability: ability, coordinate: eventData.coordinate),
@@ -211,6 +224,7 @@ class RemoteManager extends GameComponent {
         ?.playDestroyedAnimation(ability);
   }
 
+  /// Host 會去判斷那些玩家被炸死並且廣播出來，其他 Client 接收到訊號時就讓角色死亡並撥放動畫
   void onPlayerDeadEvent(PlayerDeadEvent eventData) {
     gameRef.query<PlayerComponent>()
       .firstWhereOrNull((player) => player.playerIndex == eventData.playerIndex)
@@ -242,6 +256,8 @@ class RemoteManager extends GameComponent {
     }
   }
 
+  /// 每幀去檢查是否有物件被移除的事件
+  /// 如果有則進行廣播，並清空事件
   void checkCollectAndBroadcast() {
     final data = collectExplosionDataThisFrame;
 

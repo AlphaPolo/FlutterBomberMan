@@ -24,7 +24,7 @@ class BombConfigData {
 
 class BombComponent extends GameDecorationWithCollision with Attackable, RemoteMixin {
 
-  static const double lifeTime = 2.5;
+  static const double lifeTime = BomberManConstant.bombLifeTime;
 
   @override
   final bool isHost;
@@ -78,7 +78,7 @@ class BombComponent extends GameDecorationWithCollision with Attackable, RemoteM
     if(currentDirection != ExplosionDirectionType.cross) {
       final oldCell = BomberUtils.getCoordinate(position);
       final directionForce = currentDirection.getVector2();
-      position.add(directionForce.scaled(700 * dt));
+      position.add(directionForce.scaled(BomberManConstant.bombKickForceSpeed * dt));
 
       final nextCellPosition = position + directionForce.scaled(BomberManConstant.cellSide);
       final nextCell = BomberUtils.getCoordinate(nextCellPosition);
@@ -97,11 +97,6 @@ class BombComponent extends GameDecorationWithCollision with Attackable, RemoteM
 
   @override
   Future<void> onLoad() async {
-    // setupPushable(
-    //   pushPerCellEnabled: true,
-    //   pushPerCellDuration: 1,
-    //   cellSize: BomberManConstant.cellSize.toVector2(),
-    // );
     anchor = Anchor.center;
 
     addAll([
@@ -246,7 +241,6 @@ class BombComponent extends GameDecorationWithCollision with Attackable, RemoteM
     }
 
     final coordinate = BomberUtils.getCoordinate(wall.position);
-    myPrint('coordinate: $coordinate, position: ${wall.position}');
     wall.handleAttack(AttackOriginEnum.WORLD, 1000, this);
     return true;
   }
@@ -268,7 +262,6 @@ class BombComponent extends GameDecorationWithCollision with Attackable, RemoteM
       currentPosition = direction.nextPosition(currentPosition);
 
       if(checkIsOutOfBounds(currentPosition)) {
-        myPrint('$currentPosition is out of bounds');
         break;
       }
 

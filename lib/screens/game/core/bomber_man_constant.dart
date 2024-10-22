@@ -20,6 +20,9 @@ class BomberManConstant {
   static final Vector2 bombSize = Vector2.all(52);
   static final Vector2 explodeSize = Vector2.all(48);
 
+  static const double bombLifeTime = 2.5;
+  static const double bombKickForceSpeed = 700.0;
+
   /// 寬度總共可以容納多少個tile
   static const int colTiles = width ~/ cellSide;
   /// 高度總共可以容納多少個tile
