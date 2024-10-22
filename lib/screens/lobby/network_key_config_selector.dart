@@ -58,27 +58,6 @@ class NetworkKeyConfigSelector extends StatelessWidget {
   }
 
   Future<void> showKeyboardPreviewDialog(BuildContext context, BomberManKeyConfig selected) async {
-    // showGeneralDialog(
-    //   context: context,
-    //   barrierColor: Colors.transparent,
-    //   barrierDismissible: true,
-    //   barrierLabel: 'Dismiss',
-    //   transitionBuilder: buildMyMaterialDialogTransitions,
-    //   pageBuilder: (context, animation, secondaryAnimation) {
-    //     final keyBindings = <LogicalKeyboardKey, BomberManKey>{
-    //       for(final MapEntry(:key, :value) in selected.keyMap.entries)
-    //         value: key,
-    //     };
-    //
-    //     return BaseStyleDialog(
-    //       backgroundColor: Colors.blueGrey,
-    //       alignment: Alignment.bottomCenter,
-    //       child: GameKeyboardPreview(
-    //         keyBindings: keyBindings,
-    //       ),
-    //     );
-    //   },
-    // );
 
     showDialog(
       context: context,

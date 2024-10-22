@@ -11,24 +11,27 @@ class MenuScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: Colors.black87,
       body: Center(
-        child: IntrinsicWidth(
-          child: Column(
+        child: FittedBox(
+          fit: BoxFit.scaleDown,
+          child: IntrinsicWidth(
+            child: Column(
 
-            mainAxisAlignment: MainAxisAlignment.center,
-            // crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              buildButton('單機多人模式', () {
-                Navigator.of(context).push(GameScreen.route());
-              }),
-              const SizedBox(height: 16.0),
-              buildButton('連線模式', () {
-                Navigator.of(context).push(LobbyScreen.route());
-              }),
-              const SizedBox(height: 16.0),
-              buildButton('設定', () {
-                Navigator.of(context).push(SettingScreen.route());
-              }),
-            ],
+              mainAxisAlignment: MainAxisAlignment.center,
+              // crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                buildButton('單機多人模式', () {
+                  Navigator.of(context).push(GameScreen.route());
+                }),
+                const SizedBox(height: 16.0),
+                buildButton('連線模式', () {
+                  Navigator.of(context).push(LobbyScreen.route());
+                }),
+                const SizedBox(height: 16.0),
+                buildButton('設定', () {
+                  Navigator.of(context).push(SettingScreen.route());
+                }),
+              ],
+            ),
           ),
         ),
       ),

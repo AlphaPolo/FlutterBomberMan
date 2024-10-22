@@ -64,37 +64,49 @@ class _LobbyScreenState extends State<LobbyScreen> {
   Widget switchContent(BuildContext context) {
     switch(type) {
       case GameConnectProviderType.host:
-        return const HostPartScreen();
+        return const Center(
+          child: FittedBox(
+            fit: BoxFit.scaleDown,
+            child: HostPartScreen(),
+          ),
+        );
       case GameConnectProviderType.guest:
-        return const GuestPartScreen();
+        return const Center(
+          child: FittedBox(
+            fit: BoxFit.scaleDown,
+            child: GuestPartScreen(),
+          ),
+        );
       case null:
     }
 
 
-    return Container(
-      alignment: Alignment.center,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          const Text('Choose Mode'),
-          const SizedBox(height: 32.0),
-          ElevatedButton(
-            onPressed: () => setState(() => type = GameConnectProviderType.host),
-            child: const Text('Host'),
-          ),
-          const SizedBox(height: 16.0),
-          ElevatedButton(
-            onPressed: () => setState(() => type = GameConnectProviderType.guest),
-            child: const Text('Guest'),
-          ),
-          const SizedBox(height: 16.0),
-          ElevatedButton(
-            onPressed: () => Navigator.of(context).maybePop(),
-            child: const Text('Return'),
-          ),
-        ],
+    return Center(
+      child: FittedBox(
+        fit: BoxFit.scaleDown,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            const Text('Choose Mode'),
+            const SizedBox(height: 32.0),
+            ElevatedButton(
+              onPressed: () => setState(() => type = GameConnectProviderType.host),
+              child: const Text('Host'),
+            ),
+            const SizedBox(height: 16.0),
+            ElevatedButton(
+              onPressed: () => setState(() => type = GameConnectProviderType.guest),
+              child: const Text('Guest'),
+            ),
+            const SizedBox(height: 16.0),
+            ElevatedButton(
+              onPressed: () => Navigator.of(context).maybePop(),
+              child: const Text('Return'),
+            ),
+          ],
+        ),
       ),
     );
   }

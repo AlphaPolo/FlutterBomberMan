@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import '../../utils/my_transition.dart';
+import 'game_keyboard_preview.dart';
 
 typedef BindingKeyChanged = void Function(BomberManKeyConfig);
 typedef ConfigSelector = BomberManKeyConfig Function(
@@ -103,18 +104,37 @@ class _SettingScreenState extends State<SettingScreen> {
     const titleStyle = TextStyle(
         fontWeight: FontWeight.w900, color: Colors.white, fontSize: 36);
 
-    return Column(
-      children: [
-        Text(title, style: titleStyle),
-        const SizedBox(height: 16.0),
-        Align(
-          alignment: Alignment.centerLeft,
-          child: Selector<SettingsProvider, BomberManKeyConfig>(
-            selector: selector,
-            builder: (context, value, child) => buildKeyTable(value, onChanged),
+    return FittedBox(
+      fit: BoxFit.scaleDown,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Text(title, style: titleStyle),
+              const SizedBox(width: 16.0),
+              Selector<SettingsProvider, BomberManKeyConfig>(
+                selector: selector,
+                builder: (context, value, _) {
+                  return IconButton(
+                    tooltip: '查看鍵位',
+                    onPressed: () => showKeyboardPreviewDialog(value),
+                    icon: const Icon(Icons.search),
+                  );
+                },
+              ),
+            ],
           ),
-        ),
-      ],
+          const SizedBox(height: 16.0),
+          Align(
+            alignment: Alignment.centerLeft,
+            child: Selector<SettingsProvider, BomberManKeyConfig>(
+              selector: selector,
+              builder: (context, value, child) => buildKeyTable(value, onChanged),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -154,7 +174,11 @@ class _SettingScreenState extends State<SettingScreen> {
                     side: const BorderSide(width: 2, color: Colors.white),
                   ),
                   onPressed: () async {
-                    final result = await _showKeyBindingDialog(context, entry.key, entry.value);
+                    final result = await _showKeyBindingDialog(
+                      context,
+                      entry.key,
+                      entry.value,
+                    );
                     if(result == null) return;
                     onChange.call(currentConfig.overwriteKey(
                       entry.key,
@@ -162,16 +186,45 @@ class _SettingScreenState extends State<SettingScreen> {
                     ));
                   },
                   child: entry.value == LogicalKeyboardKey.space
-                      ? const Text('Space',
-                      style: TextStyle(color: Colors.white))
-                      : Text(entry.value.keyLabel,
-                      style: const TextStyle(color: Colors.white)),
+                      ? const Text(
+                          'Space',
+                          style: TextStyle(color: Colors.white),
+                        )
+                      : Text(
+                          entry.value.keyLabel,
+                          style: const TextStyle(color: Colors.white),
+                        ),
                 ),
               ],
             );
           },
         ),
       ],
+    );
+  }
+
+
+  Future<void> showKeyboardPreviewDialog(BomberManKeyConfig selected) async {
+    return showDialog(
+        context: context,
+        barrierColor: Colors.transparent,
+        barrierDismissible: true,
+        barrierLabel: 'Dismiss',
+
+        builder: (context) {
+          final keyBindings = <LogicalKeyboardKey, BomberManKey>{
+            for(final MapEntry(:key, :value) in selected.keyMap.entries)
+              value: key,
+          };
+
+          return BaseStyleDialog(
+            backgroundColor: Colors.blueGrey,
+            alignment: Alignment.bottomCenter,
+            child: GameKeyboardPreview(
+              keyBindings: keyBindings,
+            ),
+          );
+        }
     );
   }
 }
