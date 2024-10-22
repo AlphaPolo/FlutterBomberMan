@@ -27,23 +27,23 @@ In the game, players can pick up various abilities that enhance their gameplay. 
 
 <table>
   <tr>
-    <td><img src="display/tile000.png" alt="Bomb Capacity" width="50" height="50"></td>
+    <td><img src="display/tile000.png" alt="Bomb Capacity" style="width:50px; height:auto;"></td>
     <td><strong>Bomb Capacity</strong>: Picking up this ability allows the player to place more bombs on the map simultaneously.</td>
   </tr>
   <tr>
-    <td><img src="display/tile004.png" alt="Explosion Power" width="50" height="50"></td>
+    <td><img src="display/tile004.png" alt="Explosion Power" style="width:50px; height:auto;"></td>
     <td><strong>Explosion Power</strong>: Increases the explosion range in all four directions when the player places a bomb, making it more powerful.</td>
   </tr>
   <tr>
-    <td><img src="display/tile001.png" alt="Speed Boost" width="50" height="50"></td>
+    <td><img src="display/tile001.png" alt="Speed Boost" style="width:50px; height:auto;"></td>
     <td><strong>Speed Boost</strong>: Grants a temporary increase in the player's movement speed, allowing them to navigate the map faster.</td>
   </tr>
   <tr>
-    <td><img src="display/tile002.png" alt="Kick Bomb" width="50" height="50"></td>
+    <td><img src="display/tile002.png" alt="Kick Bomb" style="width:50px; height:auto;"></td>
     <td><strong>Kick Bomb</strong>: When this ability is obtained, the player can kick bombs upon contact, sending them across the map. (Currently not implemented in P2P mode).</td>
   </tr>
   <tr>
-    <td><img src="display/tile003.png" alt="Throw Bomb" width="50" height="50"></td>
+    <td><img src="display/tile003.png" alt="Throw Bomb" style="width:50px; height:auto;"></td>
     <td><strong>Throw Bomb</strong>: (Not yet implemented). This feature will allow players to throw bombs over walls for strategic advantage.</td>
   </tr>
 </table>
