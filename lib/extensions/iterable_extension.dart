@@ -1,4 +1,5 @@
-import 'package:flame/extensions.dart';
+
+import 'package:bonfire/bonfire.dart';
 
 extension SetExtension on Set<Vector2> {
   Vector2 average() {

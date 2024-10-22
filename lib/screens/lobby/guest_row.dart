@@ -1,3 +1,4 @@
+import 'package:bomber_man/screens/game/core/bomber_man_constant.dart';
 import 'package:bonfire/bonfire.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -47,7 +48,7 @@ class GuestRow extends StatelessWidget {
         // alignment: Alignment.center,
         child: SpriteWidget.asset(
           anchor: Anchor.center,
-          path: 'spritesheet.png',
+          path: BomberManConstant.spritesheet,
           srcPosition: PlayerSpriteSheet.getPlayerTexturePosition(1, playerIndex),
           srcSize: PlayerSpriteSheet.playerTextureSize,
         ),

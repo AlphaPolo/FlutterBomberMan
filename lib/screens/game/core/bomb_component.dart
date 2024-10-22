@@ -381,8 +381,7 @@ class ExplosionAnimation extends GameDecoration {
     required super.position,
     required super.size,
     this.explosionData = const [],
-    super.anchor = Anchor.center,
-  }) {
+  }): super(anchor: Anchor.center) {
     priority = BomberManConstant.effect;
   }
 
@@ -438,7 +437,7 @@ class ExplosionAnimation extends GameDecoration {
 
     return GameDecoration.withAnimation(
       animation: SpriteAnimation.load(
-        "explode_sheet.png",
+        BomberManConstant.explode,
         SpriteAnimationData.sequenced(
           amount: 7,
           textureSize: BomberManConstant.explodeSize,

@@ -2,7 +2,6 @@ import 'package:bomber_man/providers/settings_provider.dart';
 import 'package:bomber_man/widgets/dialog/base_style_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import 'package:provider/provider.dart';
 
 import '../../utils/my_transition.dart';
@@ -48,13 +47,13 @@ class _SettingScreenState extends State<SettingScreen> {
           children: [
             buildPlayerSetting(
               'Player1 Key Setting',
-              (context, provider) => provider.player1KeyConfig,
-              (config) => provider.player1KeyConfig = config,
+                  (context, provider) => provider.player1KeyConfig,
+                  (config) => provider.player1KeyConfig = config,
             ),
             buildPlayerSetting(
               'Player2 Key Setting',
-              (context, provider) => provider.player2KeyConfig,
-              (config) => provider.player2KeyConfig = config,
+                  (context, provider) => provider.player2KeyConfig,
+                  (config) => provider.player2KeyConfig = config,
             ),
           ],
         ),
@@ -97,10 +96,10 @@ class _SettingScreenState extends State<SettingScreen> {
   }
 
   Widget buildPlayerSetting(
-    String title,
-    ConfigSelector selector,
-    BindingKeyChanged onChanged,
-  ) {
+      String title,
+      ConfigSelector selector,
+      BindingKeyChanged onChanged,
+      ) {
     const titleStyle = TextStyle(
         fontWeight: FontWeight.w900, color: Colors.white, fontSize: 36);
 
@@ -129,13 +128,13 @@ class _SettingScreenState extends State<SettingScreen> {
       },
       children: [
         ...currentConfig.keyMap.entries.map(
-          (entry) {
+              (entry) {
             final description = entry.key.description;
             return TableRow(
               children: [
                 Padding(
                   padding:
-                      const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                  const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
                   child: Text(
                     description,
                     style: const TextStyle(
@@ -164,9 +163,9 @@ class _SettingScreenState extends State<SettingScreen> {
                   },
                   child: entry.value == LogicalKeyboardKey.space
                       ? const Text('Space',
-                          style: TextStyle(color: Colors.white))
+                      style: TextStyle(color: Colors.white))
                       : Text(entry.value.keyLabel,
-                          style: const TextStyle(color: Colors.white)),
+                      style: const TextStyle(color: Colors.white)),
                 ),
               ],
             );
@@ -179,10 +178,10 @@ class _SettingScreenState extends State<SettingScreen> {
 
 
 Future<LogicalKeyboardKey?> _showKeyBindingDialog(
-  BuildContext context,
-  BomberManKey bomberManKey,
-  LogicalKeyboardKey currentKey,
-) {
+    BuildContext context,
+    BomberManKey bomberManKey,
+    LogicalKeyboardKey currentKey,
+    ) {
   return showGeneralDialog<LogicalKeyboardKey?>(
     barrierDismissible: true,
     barrierLabel: 'Dismiss',
@@ -196,7 +195,6 @@ Future<LogicalKeyboardKey?> _showKeyBindingDialog(
 
 class _KeyBindingDialog extends StatefulWidget {
   const _KeyBindingDialog({
-    super.key,
     required this.initialPair,
   });
 

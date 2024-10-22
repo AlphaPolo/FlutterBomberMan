@@ -1,4 +1,4 @@
-import 'package:flame/components.dart';
+import 'package:bonfire/bonfire.dart';
 
 extension Vector2Extension on Vector2 {
   bool get isUp => y < 0;

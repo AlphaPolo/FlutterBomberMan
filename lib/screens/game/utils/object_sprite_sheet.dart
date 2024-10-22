@@ -1,3 +1,4 @@
+import 'package:bomber_man/screens/game/core/bomber_man_constant.dart';
 import 'package:bonfire/bonfire.dart';
 
 class ObjectSpriteSheet {
@@ -7,7 +8,7 @@ class ObjectSpriteSheet {
 
 
   static Future<SpriteAnimation> get bomb => SpriteAnimation.load(
-    "spritesheet.png",
+    BomberManConstant.spritesheet,
     SpriteAnimationData([
       ...SpriteAnimationData.sequenced(
         amount: 3,
@@ -24,53 +25,49 @@ class ObjectSpriteSheet {
   );
 
   static Future<Sprite> get brick => Sprite.load(
-    'wall_tile.png',
-  );
-
-  static Future<Sprite> get brick2 => Sprite.load(
-    'tiled/tiles.png',
+    BomberManConstant.tiles,
     srcSize: Vector2.all(16),
     srcPosition: Vector2(64, 48),
   );
 
   static Future<Sprite> get abilityCapacity => Sprite.load(
-    'spritesheet.png',
+    BomberManConstant.spritesheet,
     srcSize: Vector2.all(16),
     srcPosition: Vector2(0, 131),
   );
 
   static Future<Sprite> get abilitySpeed => Sprite.load(
-    'spritesheet.png',
+    BomberManConstant.spritesheet,
     srcSize: Vector2.all(16),
     srcPosition: Vector2(17, 131),
   );
 
   static Future<Sprite> get abilityKick => Sprite.load(
-    'spritesheet.png',
+    BomberManConstant.spritesheet,
     srcSize: Vector2.all(16),
     srcPosition: Vector2(34, 131),
   );
 
   static Future<Sprite> get abilityThrow => Sprite.load(
-    'spritesheet.png',
+    BomberManConstant.spritesheet,
     srcSize: Vector2.all(16),
     srcPosition: Vector2(51, 131),
   );
 
   static Future<Sprite> get abilityPower => Sprite.load(
-    'spritesheet.png',
+    BomberManConstant.spritesheet,
     srcSize: Vector2.all(16),
     srcPosition: Vector2(68, 131),
   );
 
   static Future<Sprite> get abilitySkull => Sprite.load(
-    'spritesheet.png',
+    BomberManConstant.spritesheet,
     srcSize: Vector2.all(16),
     srcPosition: Vector2(85, 131),
   );
 
   static Future<Sprite> get abilityGoldenPower => Sprite.load(
-    'spritesheet.png',
+    BomberManConstant.spritesheet,
     srcSize: Vector2.all(16),
     srcPosition: Vector2(102, 131),
   );

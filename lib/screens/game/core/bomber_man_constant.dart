@@ -1,4 +1,5 @@
-import 'package:flame/extensions.dart';
+
+import 'package:bonfire/bonfire.dart';
 
 class BomberManConstant {
 
@@ -40,4 +41,10 @@ class BomberManConstant {
   static const int hud = 100;
   //#endregion
 
+
+  //#region Assets
+  static const String tiles = 'tiled/tiles.png';
+  static const String explode = 'explode_sheet.png';
+  static const String spritesheet = 'spritesheet.png';
+  //#endregion
 }

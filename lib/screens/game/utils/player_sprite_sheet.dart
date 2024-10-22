@@ -1,3 +1,4 @@
+import 'package:bomber_man/screens/game/core/bomber_man_constant.dart';
 import 'package:bonfire/bonfire.dart';
 
 class PlayerSpriteSheet {
@@ -16,7 +17,7 @@ class PlayerSpriteSheet {
   }
 
   static Future<SpriteAnimation> idleUp(int playerIndex) => SpriteAnimation.load(
-    "spritesheet.png",
+    BomberManConstant.spritesheet,
     SpriteAnimationData.sequenced(
       amount: 1,
       textureSize: playerTextureSize,
@@ -26,7 +27,7 @@ class PlayerSpriteSheet {
   );
 
   static Future<SpriteAnimation> idleDown(int playerIndex) => SpriteAnimation.load(
-    "spritesheet.png",
+    BomberManConstant.spritesheet,
     SpriteAnimationData.sequenced(
       amount: 1,
       textureSize: playerTextureSize,
@@ -36,7 +37,7 @@ class PlayerSpriteSheet {
   );
 
   static Future<SpriteAnimation> idleLeft(int playerIndex) => SpriteAnimation.load(
-    "spritesheet.png",
+    BomberManConstant.spritesheet,
     SpriteAnimationData.sequenced(
       amount: 1,
       textureSize: playerTextureSize,
@@ -46,7 +47,7 @@ class PlayerSpriteSheet {
   );
 
   static Future<SpriteAnimation> idleRight(int playerIndex) => SpriteAnimation.load(
-    "spritesheet.png",
+    BomberManConstant.spritesheet,
     SpriteAnimationData.sequenced(
       amount: 1,
       textureSize: playerTextureSize,
@@ -56,7 +57,7 @@ class PlayerSpriteSheet {
   );
 
   static Future<SpriteAnimation> runUp(int playerIndex) => SpriteAnimation.load(
-    "spritesheet.png",
+    BomberManConstant.spritesheet,
     SpriteAnimationData([
       ...SpriteAnimationData.sequenced(
         amount: 3,
@@ -73,7 +74,7 @@ class PlayerSpriteSheet {
   );
 
   static Future<SpriteAnimation> runDown(int playerIndex) => SpriteAnimation.load(
-    "spritesheet.png",
+    BomberManConstant.spritesheet,
     SpriteAnimationData([
       ...SpriteAnimationData.sequenced(
         amount: 3,
@@ -91,7 +92,7 @@ class PlayerSpriteSheet {
 
 
   static Future<SpriteAnimation> runLeft(int playerIndex) => SpriteAnimation.load(
-    "spritesheet.png",
+    BomberManConstant.spritesheet,
     SpriteAnimationData([
       ...SpriteAnimationData.sequenced(
         amount: 3,
@@ -108,7 +109,7 @@ class PlayerSpriteSheet {
   );
 
   static Future<SpriteAnimation> runRight(int playerIndex) => SpriteAnimation.load(
-    "spritesheet.png",
+    BomberManConstant.spritesheet,
     SpriteAnimationData([
       ...SpriteAnimationData.sequenced(
         amount: 3,
@@ -126,7 +127,7 @@ class PlayerSpriteSheet {
 
   static Future<SpriteAnimation> dead(int playerIndex) =>
       SpriteAnimation.load(
-        'spritesheet.png',
+        BomberManConstant.spritesheet,
         SpriteAnimationData.sequenced(
           amount: 4,
           stepTime: 0.2,

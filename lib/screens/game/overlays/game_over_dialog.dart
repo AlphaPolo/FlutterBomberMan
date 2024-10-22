@@ -60,6 +60,7 @@ class GameOverDialog extends StatelessWidget {
           child: DefaultTextStyle.merge(
             style: const TextStyle(color: Colors.white),
             child: Container(
+              constraints: const BoxConstraints(minWidth: 250),
               decoration: const ShapeDecoration(
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.all(Radius.circular(8.0)),

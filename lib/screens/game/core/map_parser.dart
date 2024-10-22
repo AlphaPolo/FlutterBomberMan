@@ -36,7 +36,7 @@ class BrickObject extends GameDecorationWithCollision with Attackable {
       //   paint: Paint()..color = Colors.grey.withOpacity(0.5),
       // ),
       GameDecoration.withSprite(
-        sprite: ObjectSpriteSheet.brick2,
+        sprite: ObjectSpriteSheet.brick,
         // position: BomberManConstant.zero,
         size: size*0.9,
         anchor: Anchor.center,
@@ -79,7 +79,7 @@ class BrickObject extends GameDecorationWithCollision with Attackable {
     addAll([
       GameDecoration.withAnimation(
         animation: SpriteAnimation.load(
-          'tiled/tiles.png',
+          BomberManConstant.tiles,
           SpriteAnimationData.sequenced(
             amount: 6,
             stepTime: 0.1,
