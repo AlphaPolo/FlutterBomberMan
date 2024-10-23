@@ -13,6 +13,7 @@ import 'package:bomber_man/screens/game/overlays/disconnect_dialog.dart';
 import 'package:bomber_man/screens/game/overlays/game_over_dialog.dart';
 import 'package:bonfire/bonfire.dart';
 import 'package:collection/collection.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -97,6 +98,24 @@ class _MultiGameScreenState extends State<MultiGameScreen> {
           config: getKeyboardConfigFrom(controlPlayer.keyConfig),
           observer: controlPlayer,
         ),
+        if (defaultTargetPlatform == TargetPlatform.iOS ||
+            defaultTargetPlatform == TargetPlatform.android)
+          Joystick(
+            directional: JoystickDirectional(
+              size: 100,
+              alignment: Alignment.bottomLeft,
+            ),
+            actions: [
+              JoystickAction(
+                actionId: BomberManKey.actionBomb,
+                alignment: Alignment.bottomRight,
+                color: Colors.red,
+                size: 70,
+                margin: const EdgeInsets.only(bottom: 50, right: 160),
+              ),
+            ],
+            observer: controlPlayer,
+          ),
       ],
       map: WorldMapByTiled(
         WorldMapReader.fromAsset('tiled/${widget.map}'),

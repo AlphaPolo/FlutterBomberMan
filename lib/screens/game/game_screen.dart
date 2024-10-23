@@ -9,6 +9,7 @@ import 'package:bomber_man/screens/game/core/player_component.dart';
 import 'package:bomber_man/screens/game/overlays/game_over_dialog.dart';
 import 'package:bomber_man/screens/game/utils/bomber_utils.dart';
 import 'package:bonfire/bonfire.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -80,6 +81,24 @@ class _GameScreenState extends State<GameScreen> {
           config: getKeyboardConfigFrom(secondPlayer.keyConfig),
           observer: secondPlayer,
         ),
+        if (defaultTargetPlatform == TargetPlatform.iOS ||
+            defaultTargetPlatform == TargetPlatform.android)
+          Joystick(
+            directional: JoystickDirectional(
+              size: 100,
+              alignment: Alignment.bottomLeft,
+            ),
+            actions: [
+              JoystickAction(
+                actionId: BomberManKey.actionBomb,
+                alignment: Alignment.bottomRight,
+                color: Colors.red,
+                size: 70,
+                margin: const EdgeInsets.only(bottom: 50, right: 160),
+              ),
+            ],
+            observer: firstPlayer,
+          ),
       ],
       map: WorldMapByTiled(
         WorldMapReader.fromAsset('tiled/village_10.json'),

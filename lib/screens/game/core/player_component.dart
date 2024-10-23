@@ -122,7 +122,7 @@ class PlayerComponent extends SimplePlayer with BlockMovementCollision, RemoteMi
   void onJoystickAction(JoystickActionEvent event) {
     if(isDead) return;
     if(event case JoystickActionEvent(event: ActionEvent.DOWN)) {
-      if(event.id == keyConfig.getLogicalKey(BomberManKey.actionBomb)) {
+      if(event.id == keyConfig.getLogicalKey(BomberManKey.actionBomb) || event.id == BomberManKey.actionBomb) {
         placeBomb();
       }
       if(event.id == keyConfig.getLogicalKey(BomberManKey.actionThrow)) {
